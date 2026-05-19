@@ -1,574 +1,639 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Solvoro — Human-first digital studio</title>
-  <meta name="description" content="Solvoro — elegant products and practical services. We design, build and support with clarity." />
-  <link id="favIcon" rel="icon" href="logo.png">
-
-  <style>
-    :root{
-      --bg:#f6f7fb;
-      --card:#ffffff;
-      --muted:#6b7280;
-      --accent:#071226;
-      --glass: rgba(12,17,23,0.06);
-      --shadow: 0 18px 50px rgba(2,6,23,0.10);
-      --radius:14px;
-      --ease:cubic-bezier(.2,.9,.3,1);
-      --accent-2: #0f6b5a;
-      --sidebar-w:260px;
-      --safe-top: env(safe-area-inset-top);
-      --safe-bottom: env(safe-area-inset-bottom);
-    }
-
-    /* base */
-    *{box-sizing:border-box}
-    html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;background:linear-gradient(180deg,var(--bg),#fbfcfe);color:var(--accent);-webkit-font-smoothing:antialiased}
-    a{color:inherit;text-decoration:none}
-    .container{max-width:1200px;margin:0 auto;padding:18px 22px}
-
-    /* ---------- SIDEBAR (fixed on desktop, drawer on mobile) ---------- */
-    .sidebar{
-      position:fixed; left:0; top:0; bottom:0; width:var(--sidebar-w); background:var(--card);
-      border-right:1px solid rgba(0,0,0,0.04); padding:20px 14px; box-shadow:var(--shadow);
-      display:flex; flex-direction:column; gap:12px; z-index:1200;
-      transition: transform 320ms var(--ease);
-      will-change: transform;
-    }
-    .brand{display:flex;align-items:center;gap:12px}
-    .brand img{width:52px;height:52px;border-radius:12px;object-fit:contain;transition:transform 320ms var(--ease)}
-    .brand .title{font-weight:900}
-    .brand .muted-small{font-weight:400}
-    nav{flex:1;margin-top:6px;display:flex;flex-direction:column;gap:6px}
-    nav a{padding:10px 12px;border-radius:10px;font-weight:700;color:var(--accent);display:block;transition:background 220ms var(--ease), transform 220ms var(--ease)}
-    nav a:hover{background:var(--glass);transform:translateX(6px)}
-    nav a.active{background:var(--accent);color:var(--card)}
-    .footer-row{margin-top:auto;display:flex;gap:8px;align-items:center;justify-content:center}
-
-    /* Ensure demo button matches other pages but without animation */
-    .demobtn{
-      background: linear-gradient(90deg,#25D366,#128C7E);
-      color:#fff;
-      border:0;
-      padding:12px;
-      border-radius:999px;
-      font-weight:900;
-      font-size:14px;
-      cursor:pointer;
-      align-items:center;
-      justify-content:center;
-      gap:10px;
-      box-shadow: 0 10px 30px rgba(18,140,126,0.18), 0 4px 10px rgba(0,0,0,0.06);
-    }
-
-    /* main space (accounts for sidebar width on desktop) */
-    .main{margin-left:calc(var(--sidebar-w) + 20px);padding:22px;transition:margin-left 320ms var(--ease)}
-
-    /* ---------- ISLAND (dynamic) ---------- */
-    .island{
-      display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:999px;
-      background:linear-gradient(90deg, rgba(255,255,255,0.06), transparent);
-      box-shadow:0 10px 35px rgba(2,6,23,0.06);width:100%;max-width:900px;transition:transform 320ms var(--ease);
-      position:relative; z-index:1150;
-    }
-    .island .circle{width:52px;height:52px;border-radius:999px;overflow:hidden;display:flex;align-items:center;justify-content:center;border:2px solid rgba(0,0,0,0.06);background:var(--card)}
-    .island .circle img{width:44px;height:44px;border-radius:999px;object-fit:cover}
-    .island .content{display:flex;flex-direction:column}
-    .island .title{font-weight:900}
-    .island .sub{font-size:13px;color:var(--muted)}
-
-    /* ---------- HERO (First Screen) ---------- */
-    .hero{
-      margin-top:18px;
-      display:grid;
-      grid-template-columns:1fr 420px;
-      gap:24px;
-      align-items:start;
-      position:relative;
-    }
-    .hero-bg {
-      position:absolute; inset:0; pointer-events:none; z-index:0; border-radius:18px;
-      background:
-        radial-gradient(600px 240px at 10% 10%, rgba(20,110,95,0.06), transparent 10%),
-        radial-gradient(400px 180px at 90% 80%, rgba(6,55,120,0.04), transparent 12%);
-      mix-blend-mode:normal; opacity:0.95;
-    }
-    .hero-card{
-      background:linear-gradient(180deg, rgba(255,255,255,0.92), #fff);
-      border-radius:12px;padding:36px;box-shadow:0 20px 60px rgba(12,18,28,0.06);
-      position:relative; z-index:10; overflow:visible;
-    }
-    .hero h1{margin:0;font-size:34px;line-height:1.02;letter-spacing:-0.01em}
-    .hero p{margin-top:12px;color:var(--muted);font-size:16px;max-width:56ch}
-    .ctas{margin-top:20px;display:flex;gap:12px;flex-wrap:wrap}
-    .cta-primary{background:var(--accent);color:#fff;padding:12px 16px;border-radius:10px;border:0;font-weight:900;cursor:pointer;box-shadow:0 8px 24px rgba(7,18,34,0.08)}
-    .cta-secondary{background:transparent;border:1px solid rgba(0,0,0,0.06);padding:10px 14px;border-radius:10px;font-weight:800;color:var(--accent);cursor:pointer}
-
-    /* micro animation on text load */
-    .reveal { opacity:0; transform:translateY(6px); transition:opacity 420ms var(--ease), transform 420ms var(--ease); will-change: opacity, transform; }
-    .reveal.show { opacity:1; transform:none; }
-
-    /* FRIENDLIER decorative shape (smaller, softer, non-blocking) */
-    .float-shape{
-      position:absolute;
-      right:8px;
-      top:-12px;
-      width:72px;
-      height:72px;
-      border-radius:20px;
-      background: linear-gradient(180deg, rgba(37,211,102,0.08), rgba(18,140,126,0.04));
-      box-shadow: 0 12px 36px rgba(18,140,126,0.06);
-      mix-blend-mode: screen;
-      opacity:0.95;
-      transform:translateY(6px);
-      transition: transform 520ms var(--ease), opacity 420ms var(--ease), width 320ms var(--ease), height 320ms var(--ease);
-      pointer-events: none;
-      z-index: 1140;
-      filter: blur(0.6px);
-    }
-
-    /* ---------- WHAT WE OFFER (split) ---------- */
-    .offer{
-      display:grid; grid-template-columns:1fr 1fr; gap:18px; align-items:start; margin-top:22px;
-    }
-    .panel-card{
-      background:var(--card); border-radius:12px; padding:18px; box-shadow:0 12px 36px rgba(2,6,23,0.04);
-      transition: transform 320ms var(--ease), box-shadow 320ms var(--ease);
-    }
-    .panel-card:hover { transform: translateY(-8px); box-shadow:0 26px 60px rgba(2,6,23,0.08); }
-    .panel-card h3{margin:0;font-size:18px;font-weight:900}
-    .panel-card p{margin-top:8px;color:var(--muted);font-size:14px}
-    .panel-card ul{margin:12px 0 0 18px;color:var(--muted);line-height:1.6}
-
-    /* ---------- FEATURED HIGHLIGHTS (compact) ---------- */
-    .highlights{display:flex;gap:12px;margin-top:22px;flex-wrap:wrap}
-    .highlight{display:flex;align-items:center;gap:12px;background:var(--card);padding:12px;border-radius:10px;box-shadow:0 10px 30px rgba(2,6,23,0.04);min-width:180px;opacity:0;transform:translateY(8px);transition:opacity 420ms var(--ease), transform 420ms var(--ease)}
-    .highlight.show{opacity:1;transform:none}
-    .highlight .icon{width:40px;height:40px;border-radius:10px;background:linear-gradient(180deg,#fff,#f8fffb);display:flex;align-items:center;justify-content:center;color:var(--accent-2);font-weight:900}
-
-    /* ---------- HOW IT WORKS (process) ---------- */
-    .process-row{display:flex;gap:18px;margin-top:24px;align-items:center;flex-wrap:nowrap}
-    .step-card{background:var(--card);padding:14px;border-radius:12px;box-shadow:0 12px 36px rgba(2,6,23,0.04);flex:1;text-align:center;position:relative; opacity:0; transform:translateY(8px); transition:opacity 420ms var(--ease), transform 420ms var(--ease);}
-    .step-card.show{ opacity:1; transform:none; }
-    .step-card::after{
-      content:''; position:absolute; right:-9px; top:50%; transform:translateY(-50%); width:18px; height:2px; background:linear-gradient(90deg, rgba(0,0,0,0.06), rgba(0,0,0,0.02));
-    }
-    .step-card:last-child::after{ display:none; }
-    .connector{height:6px;background:linear-gradient(90deg,#25D366,#128C7E);border-radius:999px;margin-top:12px;opacity:0.85}
-    /* mobile vertical timeline */
-    .process-vertical{display:none;flex-direction:column;gap:12px}
-    .process-vertical .step-card::after{ right:auto; left:50%; top:auto; bottom:-14px; transform:translateX(-50%) rotate(90deg); width:2px; height:18px; }
-
-    /* ---------- CTA (strong) ---------- */
-    .final-cta{margin-top:32px;padding:28px;border-radius:14px;background:linear-gradient(90deg,#0f1724,#0b3d34);color:#fff;display:flex;align-items:center;justify-content:space-between;gap:18px}
-    .final-cta h3{margin:0;font-size:20px}
-    .final-cta .single-btn{background:#fff;color:var(--accent);padding:12px 18px;border-radius:10px;font-weight:900;cursor:pointer;box-shadow:0 12px 40px rgba(2,6,23,0.12)}
-    .single-btn:hover{transform:scale(1.02)}
-    .single-btn.pulse{animation: pulse 2200ms ease-in-out infinite}
-    @keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.02)}100%{transform:scale(1)}}
-
-    /* ---------- FOLLOW US (social) ---------- */
-    .follow { display:flex; gap:12px; align-items:center; margin-top:20px; flex-wrap:wrap; }
-    .follow a { display:inline-flex; align-items:center; gap:8px; background:var(--card); padding:8px 12px; border-radius:10px; box-shadow:0 8px 24px rgba(2,6,23,0.04); font-weight:700; color:var(--accent); text-decoration:none; }
-    .follow svg { width:18px; height:18px; display:block }
-
-    /* responsive behavior: center content on mobile, hide island logo, shift island on drawer open */
-    @media(max-width:760px){
-      /* center main content by removing left margin and using symmetric padding */
-      .main{
-        margin-left:0;
-        padding:14px;
-        padding-top:calc(12px + var(--safe-top));
-        padding-bottom:calc(12px + var(--safe-bottom));
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Vineet's Cup · Cricket Tournament Manager</title>
+  <script type="importmap">
+    {
+      "imports": {
+        "firebase/app": "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js",
+        "firebase/firestore": "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js"
       }
-      /* island logo hidden on mobile */
-      .island .circle { display:none; }
-      /* default: ensure hero and panels stack nicely */
-      .hero{ grid-template-columns:1fr; }
-      .offer{ grid-template-columns:1fr; }
-      .highlights{ flex-direction: column; }
-      .process-row{ display:none; }
-      .process-vertical{ display:flex; }
-
-      /* When drawer opens, shift only the island (not whole page) to align visually */
-      body.sidebar-open .main .island { transform: translateX(calc(var(--sidebar-w))); transition: transform 320ms var(--ease); }
+    }
+  </script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', 'Poppins', system-ui, sans-serif;
     }
 
-    /* reduced motion */
-    @media (prefers-reduced-motion: reduce){
-      :root{ --ease: linear; }
-      *{ transition:none !important; animation:none !important; }
+    body {
+      background: linear-gradient(145deg, #eef2f0 0%, #c8e0d4 100%);
+      min-height: 100vh;
+      padding: 2rem 1.5rem;
     }
 
-    /* helpers */
-    .muted{color:var(--muted)}
-    .small{font-size:13px}
-    button:focus, a:focus { outline: 3px solid rgba(15,23,36,0.08); outline-offset:3px; border-radius:6px; }
+    .app-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(2px);
+      border-radius: 2.5rem;
+      box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.35);
+      padding: 1.8rem 2rem 2rem;
+    }
+
+    .tournament-header {
+      text-align: center;
+      margin-bottom: 2rem;
+      border-bottom: 3px dashed #f39c12;
+      padding-bottom: 1rem;
+    }
+
+    .tournament-header h1 {
+      font-size: 2.8rem;
+      background: linear-gradient(135deg, #1e3c2c, #2c7a47);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: -0.5px;
+    }
+
+    .nav-pages {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.7rem;
+      margin-bottom: 2rem;
+      background: #ffffffcc;
+      padding: 0.7rem 1rem;
+      border-radius: 60px;
+    }
+
+    .nav-btn {
+      background: #eef2f7;
+      border: none;
+      padding: 0.6rem 1.4rem;
+      font-weight: 600;
+      border-radius: 40px;
+      cursor: pointer;
+      transition: 0.2s;
+      color: #1f3b2c;
+    }
+
+    .nav-btn.active {
+      background: #2c7a47;
+      color: white;
+      box-shadow: 0 6px 14px rgba(44,122,71,0.3);
+    }
+
+    .page {
+      display: none;
+      animation: fade 0.25s ease;
+    }
+
+    .page.active-page {
+      display: block;
+    }
+
+    @keyframes fade {
+      from { opacity: 0; transform: translateY(6px);}
+      to { opacity: 1; transform: translateY(0);}
+    }
+
+    .card-panel {
+      background: white;
+      border-radius: 1.8rem;
+      padding: 1.5rem;
+      margin-bottom: 1.8rem;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.05);
+    }
+
+    .form-group {
+      margin-bottom: 1.2rem;
+    }
+
+    label {
+      font-weight: 600;
+      display: block;
+      margin-bottom: 0.4rem;
+      color: #2c3e2f;
+    }
+
+    input, select, button {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border-radius: 50px;
+      border: 1px solid #cbdcd0;
+      font-size: 0.95rem;
+    }
+
+    button {
+      background: #2c7a47;
+      color: white;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    button.danger {
+      background: #b84c2c;
+    }
+
+    button.danger:hover {
+      background: #8e3a1f;
+    }
+
+    .data-list {
+      margin-top: 1rem;
+      max-height: 340px;
+      overflow-y: auto;
+      background: #fafcf8;
+      border-radius: 1.2rem;
+      padding: 0.7rem;
+    }
+
+    .team-badge, .match-item, .role-card {
+      background: white;
+      border-radius: 60px;
+      padding: 0.6rem 1rem;
+      margin-bottom: 0.6rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      border-left: 5px solid #f39c12;
+    }
+
+    .winner-highlight {
+      border-left-color: #2c7a47;
+      background: #e9f7ec;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.2rem;
+    }
+
+    .score-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 1.2rem;
+    }
+
+    .score-table th, .score-table td {
+      padding: 0.8rem;
+      text-align: left;
+      border-bottom: 1px solid #e0e8e0;
+    }
+
+    .score-table th {
+      background: #2c7a47;
+      color: white;
+    }
+
+    .alert {
+      background: #fef1e0;
+      border-left: 6px solid #ff9800;
+      padding: 0.7rem;
+      border-radius: 1rem;
+    }
+
+    .role-editor {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .role-editor input {
+      flex: 2;
+      margin: 0;
+    }
+
+    .role-editor button {
+      width: auto;
+      padding: 0.6rem 1.2rem;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 2rem;
+      font-size: 0.8rem;
+      color: #4a6741;
+    }
+
+    @media (max-width: 700px) {
+      .app-container { padding: 1rem; }
+      .nav-btn { padding: 0.4rem 1rem; font-size: 0.75rem; }
+    }
   </style>
 </head>
 <body>
+<div class="app-container">
+  <div class="tournament-header">
+    <h1>🏏 VINEET'S CUP · CRICKET TOURNAMENT 🏆</h1>
+    <p>public scoreboard · no login · add teams, captains, schedule matches & declare winners</p>
+  </div>
 
-  <!-- SIDEBAR -->
-  <aside id="sidebar" class="sidebar" aria-label="Main sidebar" aria-hidden="false">
-    <div class="brand" role="banner">
-      <img id="sidebarLogo" src="logo.png" alt="Solvoro logo" loading="lazy">
-      <div>
-        <div class="title">Solvoro</div>
-        <div class="muted-small">Human-first studio</div>
+  <div class="nav-pages">
+    <button class="nav-btn" data-page="addTeams">➕ ADD TEAMS</button>
+    <button class="nav-btn" data-page="addMatches">📅 SCHEDULE MATCHES</button>
+    <button class="nav-btn" data-page="updateWinner">🏅 DECLARE WINNER</button>
+    <button class="nav-btn" data-page="preview">👀 PREVIEW ALL</button>
+    <button class="nav-btn" data-page="scorecard">📊 SCORECARD</button>
+    <button class="nav-btn" data-page="officials">👑 OFFICIALS & RESET</button>
+  </div>
+
+  <!-- PAGE 1: ADD TEAMS with CAPTAIN -->
+  <div id="addTeams" class="page">
+    <div class="card-panel">
+      <h2>🏏 Add New Cricket Team</h2>
+      <div class="form-group">
+        <label>Team Name</label>
+        <input type="text" id="teamNameInput" placeholder="e.g., Chennai Kings" autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label>Captain Name</label>
+        <input type="text" id="captainNameInput" placeholder="e.g., M.S. Dhoni">
+      </div>
+      <button id="addTeamBtn">➕ Add Team + Captain</button>
+      <div class="data-list" id="teamsListContainer">
+        <div class="small-text">✨ Teams & captains will appear here</div>
       </div>
     </div>
+  </div>
 
-    <nav aria-label="Main navigation">
-      <a href="index.html" class="active">Home</a>
-      <a href="services.html">Services</a>
-      <a href="products.html">Products</a>
-      <a href="support.html">Support</a>
-      <a href="about.html">About</a>
-    </nav>
-
-    <div class="footer-row" aria-hidden="false">
-      <button onclick="window.location.href='https://www.solvoro.online/demo-arean'" class="demobtn">Demo Arean</button>
+  <!-- PAGE 2: ADD MATCH with DATE -->
+  <div id="addMatches" class="page">
+    <div class="card-panel">
+      <h2>⚡ Schedule a Cricket Match</h2>
+      <div class="grid-2">
+        <div class="form-group">
+          <label>Team A</label>
+          <select id="matchTeamA"></select>
+        </div>
+        <div class="form-group">
+          <label>Team B</label>
+          <select id="matchTeamB"></select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Match Date</label>
+        <input type="date" id="matchDate">
+      </div>
+      <button id="scheduleMatchBtn">📌 Schedule Match</button>
+      <div class="data-list" id="upcomingMatchesList"></div>
     </div>
-    </aside>
+  </div>
 
-  <!-- mobile overlay -->
-  <div id="mobileOverlay" style="position:fixed;inset:0;background:rgba(0,0,0,0.4);opacity:0;pointer-events:none;transition:opacity 260ms var(--ease);z-index:1190" aria-hidden="true"></div>
-
-  <!-- MAIN -->
-  <main id="main" class="main container" tabindex="-1">
-    <div style="display:flex;align-items:center;gap:14px;justify-content:space-between;max-width:1100px;margin:0 auto">
-      <div style="display:flex;gap:12px;align-items:center">
-        <div class="island" id="island" role="region" aria-label="Dynamic island">
-          <div class="circle"><img id="islandLogo" src="logo.png" alt="logo" loading="lazy"></div>
-          <div class="content">
-            <div id="bannerText" class="title">Solvoro — we make digital feel human</div>
-            <div id="bannerSub" class="sub">Products and services designed for people, not complexity.</div>
-          </div>
-          <div class="float-shape" id="floatShape" aria-hidden="true"></div>
-        </div>
+  <!-- PAGE 3: UPDATE WINNER -->
+  <div id="updateWinner" class="page">
+    <div class="card-panel">
+      <h2>🏆 Update Match Winner</h2>
+      <div class="form-group">
+        <label>Select Match</label>
+        <select id="winnerMatchSelect"></select>
       </div>
-
-      <div style="display:flex;align-items:center;gap:10px">
-        <button id="hamburger" aria-label="Open menu" aria-expanded="false" style="display:none;background:transparent;border:0;padding:10px;border-radius:8px;cursor:pointer">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg>
-        </button>
+      <div class="form-group">
+        <label>Winner Team</label>
+        <select id="winnerTeamSelect">
+          <option value="">— No winner / reset —</option>
+        </select>
       </div>
+      <button id="confirmWinnerBtn">✅ Confirm Winner Update</button>
+      <div id="winnerMessage" class="alert" style="display:none;"></div>
     </div>
+  </div>
 
-    <!-- HERO -->
-    <section class="hero" aria-labelledby="home-hero">
-      <div class="hero-bg" aria-hidden="true"></div>
+  <!-- PAGE 4: PREVIEW -->
+  <div id="preview" class="page">
+    <div class="card-panel">
+      <h2>📋 Full Tournament Preview</h2>
+      <h3>🏅 Teams & Captains</h3>
+      <div id="previewTeamsList" class="data-list"></div>
+      <h3 style="margin-top: 1.5rem;">🏟️ All Matches & Results</h3>
+      <div id="previewMatchesList" class="data-list"></div>
+    </div>
+  </div>
 
-      <div class="hero-card" role="region" aria-labelledby="home-hero" style="margin:0 auto">
-        <h1 id="heroHeading" class="reveal">Progress is intentional. We help you build it.</h1>
-        <p id="heroSub" class="reveal" style="transition-delay:120ms">We create digital products and services that turn ideas into action—designed for growth, clarity, and real-world results.</p>
+  <!-- PAGE 5: SCORECARD & STANDINGS -->
+  <div id="scorecard" class="page">
+    <div class="card-panel">
+      <h2>📈 POINTS TABLE (2 pts per win)</h2>
+      <div id="pointsTableContainer"></div>
+      <h3 style="margin-top: 1.8rem;">🏏 Match Scorecard</h3>
+      <div id="scorecardMatchesList" class="data-list"></div>
+    </div>
+  </div>
 
-        <div class="ctas reveal" style="transition-delay:220ms">
-          <a href="products.html" class="cta-primary" aria-label="Explore Products">Explore Products</a>
-          <a href="services.html" class="cta-secondary" aria-label="View Services">View Services</a>
-        </div>
-      </div>
+  <!-- PAGE 6: OFFICIALS (4 roles) + RESET EVERYTHING -->
+  <div id="officials" class="page">
+    <div class="card-panel">
+      <h2>👔 Tournament Officials</h2>
+      <div id="rolesContainer"></div>
+      <hr style="margin: 1.5rem 0;">
+      <button id="resetAllDataBtn" class="danger" style="background:#c0392b;">⚠️ RESET EVERYTHING (teams, matches, winners) ⚠️</button>
+      <p class="small-text" style="margin-top: 1rem;">⚠️ This will delete all teams, matches, and reset winners. Officials names remain.</p>
+    </div>
+  </div>
+  <footer>🏆 Vineet's Cup · Live Firestore · Cricket Edition</footer>
+</div>
 
-      <div style="display:flex;flex-direction:column;gap:12px;align-items:stretch;z-index:10">
-        <div class="panel-card" style="padding:14px;">
-          <div style="font-weight:900">What you'll get</div>
-          <div class="muted small" style="margin-top:8px">Focused work that ships — with clarity, documentation, and optional ongoing care.</div>
-        </div>
+<script type="module">
+  import { initializeApp } from "firebase/app";
+  import { getFirestore, collection, doc, setDoc, getDocs, updateDoc, deleteDoc, query, orderBy, writeBatch } from "firebase/firestore";
 
-        <div class="panel-card" style="padding:14px;text-align:center">
-          <div style="font-weight:900">Small team, clear communication</div>
-          <div class="muted small" style="margin-top:8px">Direct access to the people doing the work.</div>
-        </div>
-      </div>
-    </section>
+  const firebaseConfig = {
+    apiKey: "AIzaSyBbWQgBjAIAn-OI3DzDAqx7lmLmbUCUAWU",
+    authDomain: "solvoro-c9155.firebaseapp.com",
+    projectId: "solvoro-c9155",
+    storageBucket: "solvoro-c9155.firebasestorage.app",
+    messagingSenderId: "536457030363",
+    appId: "1:536457030363:web:e3315527c15fc037ba3afe",
+    measurementId: "G-Z47VFQ3C7Q"
+  };
 
-    <!-- rest of page (unchanged) -->
-    <!-- WHAT WE OFFER, HIGHLIGHTS, PROCESS, FOLLOW, FINAL CTA, FOOTER ... -->
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
 
-    <section class="offer" aria-labelledby="offer" style="margin-top:22px">
-      <h2 id="offer" style="grid-column:1/-1;margin:0 0 8px 0">What we offer</h2>
+  const teamsCol = collection(db, "teams");
+  const matchesCol = collection(db, "matches");
+  const configCol = collection(db, "config");
+  const rolesDoc = doc(db, "config", "tournamentOfficials");
 
-      <div class="panel-card" aria-hidden="false">
-        <h3>Digital products</h3>
-        <p class="muted">Ready-made kits, components and templates that speed development and keep design consistent.</p>
-        <ul>
-          <li>Reusable UI kits that fit your brand</li>
-          <li>Documentation and quick setup</li>
-          <li>Easy to extend by your team</li>
-        </ul>
-      </div>
+  // Default roles structure
+  const defaultRoles = {
+    chairman: "Mr. Vineet",
+    secretary: "Ms. Anjali",
+    manager1: "Coach Ravi",
+    manager2: "Event Head Priya"
+  };
 
-      <div class="panel-card" aria-hidden="false">
-        <h3>Services</h3>
-        <p class="muted">Design and build services for early-stage products and growing teams — practical and human.</p>
-        <ul>
-          <li>Product design & UX</li>
-          <li>Frontend engineering & CMS</li>
-          <li>Ongoing care and hosting</li>
-        </ul>
-      </div>
-    </section>
+  // Initialize roles if not exist
+  async function initRoles() {
+    const snap = await getDocs(configCol);
+    const exists = snap.docs.some(d => d.id === "tournamentOfficials");
+    if (!exists) {
+      await setDoc(rolesDoc, defaultRoles);
+    }
+  }
 
-    <section aria-labelledby="high" style="margin-top:18px">
-      <h3 id="high" style="margin:0 0 12px 0">Highlights</h3>
-      <div class="highlights" role="list">
-        <div class="highlight" role="listitem" id="h1">
-          <div class="icon">₹</div>
-          <div>
-            <div style="font-weight:800">Affordable options</div>
-            <div class="muted small">Practical packages, no hidden fees.</div>
-          </div>
-        </div>
+  // Fetch roles
+  async function fetchRoles() {
+    const docSnap = await getDocs(configCol);
+    const roleDoc = docSnap.docs.find(d => d.id === "tournamentOfficials");
+    if (roleDoc) return roleDoc.data();
+    return defaultRoles;
+  }
 
-        <div class="highlight" role="listitem" id="h2">
-          <div class="icon">⚡</div>
-          <div>
-            <div style="font-weight:800">Fast delivery</div>
-            <div class="muted small">Small teams, quick iterations.</div>
-          </div>
-        </div>
+  // Update single role
+  async function updateRole(roleKey, value) {
+    await setDoc(rolesDoc, { [roleKey]: value }, { merge: true });
+  }
 
-        <div class="highlight" role="listitem" id="h3">
-          <div class="icon">📈</div>
-          <div>
-            <div style="font-weight:800">Growth-focused</div>
-            <div class="muted small">Work that helps you measure progress.</div>
-          </div>
-        </div>
-      </div>
-    </section>
+  // Fetch teams (with captain)
+  async function fetchTeams() {
+    const snapshot = await getDocs(teamsCol);
+    return snapshot.docs.map(doc => ({ id: doc.id, name: doc.id, captain: doc.data().captain || "—" }));
+  }
 
-    <section aria-labelledby="how" class="panel" style="margin-top:22px">
-      <h3 id="how" style="margin:0 0 12px 0">How it works</h3>
+  async function fetchMatches() {
+    const q = query(matchesCol, orderBy("date", "asc"));
+    const snap = await getDocs(q);
+    return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  }
 
-      <div class="process-row" aria-hidden="false">
-        <div class="step-card" role="article">
-          <div style="font-weight:900">Choose</div>
-          <div class="muted small" style="margin-top:8px">Pick a product or request a service.</div>
-        </div>
+  // ========== ADD TEAM WITH CAPTAIN ==========
+  async function addTeam(teamName, captain) {
+    if (!teamName.trim()) throw new Error("Team name required");
+    if (!captain.trim()) throw new Error("Captain name required");
+    const teamRef = doc(db, "teams", teamName.trim());
+    await setDoc(teamRef, { name: teamName.trim(), captain: captain.trim(), createdAt: new Date() });
+  }
 
-        <div class="step-card" role="article">
-          <div style="font-weight:900">Order or access</div>
-          <div class="muted small" style="margin-top:8px">Instant access for products; a simple order flow for services.</div>
-        </div>
+  async function addMatch(teamA, teamB, date) {
+    if (teamA === teamB) throw new Error("Cannot schedule match with same team");
+    if (!teamA || !teamB) throw new Error("Select both teams");
+    if (!date) throw new Error("Pick a date");
+    await setDoc(doc(matchesCol), { teamA, teamB, date, winner: null, createdAt: new Date() });
+  }
 
-        <div class="step-card" role="article">
-          <div style="font-weight:900">Grow</div>
-          <div class="muted small" style="margin-top:8px">Iterate, measure, and improve with our support.</div>
-        </div>
-      </div>
+  async function updateMatchWinner(matchId, winner) {
+    const matchRef = doc(db, "matches", matchId);
+    await updateDoc(matchRef, { winner: winner || null });
+  }
 
-      <div class="process-vertical" aria-hidden="true" style="margin-top:12px">
-        <div class="step-card">
-          <div style="font-weight:900">Choose</div>
-          <div class="muted small">Pick a product or request a service.</div>
-        </div>
-        <div class="step-card">
-          <div style="font-weight:900">Order or access</div>
-          <div class="muted small">Instant access for products; streamlined order for services.</div>
-        </div>
-        <div class="step-card">
-          <div style="font-weight:900">Grow</div>
-          <div class="muted small">Iterate, measure, and improve with our support.</div>
-        </div>
-      </div>
-    </section>
+  // RESET EVERYTHING (delete all teams, all matches)
+  async function resetAllTournamentData() {
+    const teamsSnapshot = await getDocs(teamsCol);
+    const matchesSnapshot = await getDocs(matchesCol);
+    const batch = writeBatch(db);
+    teamsSnapshot.docs.forEach(doc => batch.delete(doc.ref));
+    matchesSnapshot.docs.forEach(doc => batch.delete(doc.ref));
+    await batch.commit();
+  }
 
-    <section aria-labelledby="follow" class="panel" style="margin-top:22px">
-      <h3 id="follow" style="margin:0 0 12px 0">Follow us</h3>
-      <div class="follow" role="list">
-        <a role="listitem" target="_blank" rel="noopener noreferrer" aria-label="Instagram - solvoro.official" href="https://www.instagram.com/solvoro.official">Instagram</a>
-        <a role="listitem" target="_blank" rel="noopener noreferrer" aria-label="Facebook - Solvoro O" href="https://www.facebook.com/people/Solvoro-O/pfbid0sqGLVtCnu81efxMq4q4hCnRDWABn1dNCXjyjfkWWS9SjtPihQXLVzm2E1Vnc7pbhl/">Facebook</a>
-        <a role="listitem" target="_blank" rel="noopener noreferrer" aria-label="YouTube - Solvoro Freelancing" href="https://www.youtube.com/@solvoro.freelancing">YouTube</a>
-      </div>
-    </section>
-
-    <section aria-labelledby="final-cta" style="margin-top:26px">
-      <div class="final-cta" role="region" aria-labelledby="final-cta">
-        <h3 id="final-cta" style="margin:0">Start something clear and useful today.</h3>
-        <a class="single-btn pulse" href="products.html" aria-label="Get started">Get started</a>
-      </div>
-    </section>
-    <br>
-    <hr>
-   <footer style="text-align:center;padding:10px 0;color:var(--muted)"><small>© Solvoro — human-first digital studio</small></footer>
-  </main>
-
-  <div id="toast" class="toast" role="status" aria-live="polite"></div>
-
-  <!-- FIREBASE + DYNAMIC ISLAND (fetch admin meta) -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js";
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyAPdXACIbpkug9CZkCun08paAz7un9-xjI",
-      authDomain: "usss-96c7f.firebaseapp.com",
-      projectId: "usss-96c7f",
-      storageBucket: "usss-96c7f.firebasestorage.app",
-      messagingSenderId: "120676939304",
-      appId: "1:120676939304:web:069e4d64eccfeab58e671d"
-    };
-
-    let db = null;
+  // ---------- RENDER FUNCTIONS ----------
+  async function renderTeamsPage() {
+    const container = document.getElementById("teamsListContainer");
     try {
-      const app = initializeApp(firebaseConfig);
-      db = getFirestore(app);
-    } catch(e){
-      console.warn('Firebase init failed — homepage will still work locally.', e);
-    }
+      const teams = await fetchTeams();
+      if (!teams.length) { container.innerHTML = `<div class="small-text">🏏 No teams yet. Add team + captain!</div>`; return; }
+      container.innerHTML = teams.map(t => `<div class="team-badge">🏏 ${escapeHtml(t.name)}  |  👑 Captain: ${escapeHtml(t.captain)}</div>`).join('');
+    } catch(e) { container.innerHTML = `<div class="alert">Error loading teams</div>`; }
+  }
 
-    const $ = s => document.querySelector(s);
+  async function renderAddMatchesPage() {
+    const teamASelect = document.getElementById("matchTeamA");
+    const teamBSelect = document.getElementById("matchTeamB");
+    const matchesContainer = document.getElementById("upcomingMatchesList");
+    try {
+      const teams = await fetchTeams();
+      const options = teams.map(t => `<option value="${escapeHtml(t.name)}">${escapeHtml(t.name)} (C: ${escapeHtml(t.captain)})</option>`).join('');
+      teamASelect.innerHTML = `<option value="">-- select team --</option>${options}`;
+      teamBSelect.innerHTML = `<option value="">-- select team --</option>${options}`;
+      const matches = await fetchMatches();
+      if (!matches.length) matchesContainer.innerHTML = `<div class="small-text">📭 No matches scheduled.</div>`;
+      else matchesContainer.innerHTML = matches.map(m => `<div class="match-item ${m.winner ? 'winner-highlight' : ''}"><span><strong>${escapeHtml(m.teamA)}</strong> 🆚 <strong>${escapeHtml(m.teamB)}</strong> 📅 ${escapeHtml(m.date)}</span><span>${m.winner ? `🏆 Winner: ${escapeHtml(m.winner)}` : '⏳ Pending'}</span></div>`).join('');
+    } catch(e) { matchesContainer.innerHTML = "error"; }
+  }
 
-    async function fetchMeta(){
-      if (!db) return;
-      try {
-        const ref = doc(db, 'meta', 'site');
-        const s = await getDoc(ref);
-        if (!s.exists()) return;
-        const meta = s.data();
-        if (meta.adminLogo) {
-          $('#islandLogo').src = meta.adminLogo;
-          $('#sidebarLogo').src = meta.adminLogo;
-          const fav = document.getElementById('favIcon');
-          if (fav) fav.href = meta.adminLogo;
+  async function renderUpdateWinnerPage() {
+    const matchSelect = document.getElementById("winnerMatchSelect");
+    const winnerSelect = document.getElementById("winnerTeamSelect");
+    try {
+      const matches = await fetchMatches();
+      if (!matches.length) { matchSelect.innerHTML = `<option>No matches yet</option>`; return; }
+      matchSelect.innerHTML = matches.map(m => `<option value="${m.id}">${escapeHtml(m.teamA)} vs ${escapeHtml(m.teamB)} (${m.date}) ${m.winner ? '✓ Winner: '+m.winner : '⌛'}</option>`).join('');
+      const updateWinnerOptions = () => {
+        const selectedId = matchSelect.value;
+        const match = matches.find(m => m.id === selectedId);
+        if (match) {
+          winnerSelect.innerHTML = `<option value="">— No winner / reset —</option><option value="${escapeHtml(match.teamA)}">🏆 ${escapeHtml(match.teamA)}</option><option value="${escapeHtml(match.teamB)}">🏆 ${escapeHtml(match.teamB)}</option>`;
+          if (match.winner) winnerSelect.value = match.winner;
+          else winnerSelect.value = "";
         }
-        if (meta.bannerText) $('#bannerText').textContent = meta.bannerText;
-        if (meta.bannerSub) $('#bannerSub').textContent = meta.bannerSub;
-        if (meta.heroHeading) $('#heroHeading').textContent = meta.heroHeading;
-        if (meta.heroSub) $('#heroSub').textContent = meta.heroSub;
-      } catch (err) {
-        console.warn('fetchMeta error', err);
-      }
-    }
+      };
+      matchSelect.onchange = updateWinnerOptions;
+      if (matches.length) updateWinnerOptions();
+    } catch(e) { console.error(e); }
+  }
 
-    // Sidebar interactions: drawer on mobile only (no minimize/collapse)
-    const sidebar = document.getElementById('sidebar');
-    const mobileOverlay = document.getElementById('mobileOverlay');
-    const hamburger = document.getElementById('hamburger');
-    const demoBtn = document.getElementById('demoBtn');
-    const floatShape = document.getElementById('floatShape');
+  async function renderPreviewPage() {
+    const teamsDiv = document.getElementById("previewTeamsList");
+    const matchesDiv = document.getElementById("previewMatchesList");
+    const teams = await fetchTeams();
+    teamsDiv.innerHTML = teams.length ? teams.map(t => `<div class="team-badge">🏏 ${escapeHtml(t.name)}  (Captain: ${escapeHtml(t.captant)}</div>`).join('') : "<div>No teams</div>";
+    const matches = await fetchMatches();
+    if (!matches.length) matchesDiv.innerHTML = "<div class='small-text'>No matches scheduled</div>";
+    else matchesDiv.innerHTML = matches.map(m => `<div class="match-item ${m.winner ? 'winner-highlight' : ''}"><div><strong>${escapeHtml(m.teamA)}</strong> vs <strong>${escapeHtml(m.teamB)}</strong> 📅 ${escapeHtml(m.date)}</div><div>${m.winner ? `🏆 WINNER: ${escapeHtml(m.winner)}` : '⏳ Result pending'}</div></div>`).join('');
+  }
 
-    function isMobile(){ return window.innerWidth <= 760; }
-
-    function initSidebar() {
-      if (isMobile()) {
-        sidebar.style.transform = 'translateX(calc(-1 * var(--sidebar-w)))';
-        sidebar.setAttribute('aria-hidden', 'true');
-        if (hamburger) hamburger.style.display = 'block';
-      } else {
-        sidebar.style.transform = '';
-        sidebar.classList.remove('open');
-        sidebar.setAttribute('aria-hidden', 'false');
-        if (hamburger) hamburger.style.display = 'none';
-      }
-    }
-    initSidebar();
-    window.addEventListener('resize', initSidebar);
-
-    function openDrawer(){
-      sidebar.classList.add('open');
-      sidebar.style.transform = 'translateX(0)';
-      mobileOverlay.style.opacity = '1';
-      mobileOverlay.style.pointerEvents = 'auto';
-      mobileOverlay.setAttribute('aria-hidden', 'false');
-      document.body.style.overflow = 'hidden';
-      sidebar.setAttribute('aria-hidden', 'false');
-      hamburger && hamburger.setAttribute('aria-expanded', 'true');
-
-      if (isMobile()) document.body.classList.add('sidebar-open');
-    }
-    function closeDrawer(){
-      sidebar.classList.remove('open');
-      sidebar.style.transform = 'translateX(calc(-1 * var(--sidebar-w)))';
-      mobileOverlay.style.opacity = '0';
-      mobileOverlay.style.pointerEvents = 'none';
-      mobileOverlay.setAttribute('aria-hidden', 'true');
-      document.body.style.overflow = '';
-      sidebar.setAttribute('aria-hidden', 'true');
-      hamburger && hamburger.setAttribute('aria-expanded', 'false');
-
-      document.body.classList.remove('sidebar-open');
-    }
-
-    // Accessibility: focus trap for drawer
-    const focusableSelector = 'a[href], button:not([disabled]), input, textarea, select, [tabindex]:not([tabindex="-1"])';
-    let lastFocusedBeforeDrawer = null;
-    function trapDrawerFocus(drawer) {
-      const focusables = Array.from(drawer.querySelectorAll(focusableSelector));
-      if (!focusables.length) return () => {};
-      const first = focusables[0], last = focusables[focusables.length -1];
-      function keyHandler(e){
-        if (e.key !== 'Tab') return;
-        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
-      }
-      drawer.addEventListener('keydown', keyHandler);
-      return ()=> drawer.removeEventListener('keydown', keyHandler);
-    }
-    function openDrawerAccessible(){
-      lastFocusedBeforeDrawer = document.activeElement;
-      openDrawer();
-      const removeTrap = trapDrawerFocus(sidebar);
-      const first = sidebar.querySelector(focusableSelector);
-      first && first.focus();
-      sidebar._removeTrap = removeTrap;
-    }
-    function closeDrawerAccessible(){
-      closeDrawer();
-      if (sidebar._removeTrap) { sidebar._removeTrap(); sidebar._removeTrap = null; }
-      try { lastFocusedBeforeDrawer && lastFocusedBeforeDrawer.focus(); } catch(e){}
-    }
-
-    hamburger && hamburger.addEventListener('click', ()=> {
-      if (sidebar.classList.contains('open')) closeDrawerAccessible(); else openDrawerAccessible();
+  async function renderScorecardPage() {
+    const pointsContainer = document.getElementById("pointsTableContainer");
+    const scoreMatchesDiv = document.getElementById("scorecardMatchesList");
+    const teams = await fetchTeams();
+    const matches = await fetchMatches();
+    const stats = {};
+    teams.forEach(t => { stats[t.name] = { played: 0, wins: 0, points: 0, name: t.name }; });
+    matches.filter(m => m.winner && m.winner !== "").forEach(m => {
+      if (stats[m.teamA]) stats[m.teamA].played++;
+      if (stats[m.teamB]) stats[m.teamB].played++;
+      if (stats[m.winner]) { stats[m.winner].wins++; stats[m.winner].points += 2; }
     });
-    mobileOverlay && mobileOverlay.addEventListener('click', closeDrawerAccessible);
+    const standings = Object.values(stats).sort((a,b) => b.points - a.points);
+    pointsContainer.innerHTML = standings.length ? `<table class="score-table"><thead><tr><th>Team</th><th>Played</th><th>Wins</th><th>Points</th></tr></thead><tbody>${standings.map(s => `<tr><td>${escapeHtml(s.name)}</td><td>${s.played}</td><td>${s.wins}</td><td>${s.points}</td></tr>`).join('')}</tbody></table>` : "<div>Add teams to see points table</div>";
+    scoreMatchesDiv.innerHTML = matches.length ? matches.map(m => `<div class="match-item ${m.winner ? 'winner-highlight' : ''}"><div><strong>${escapeHtml(m.teamA)} 🆚 ${escapeHtml(m.teamB)}</strong> (${escapeHtml(m.date)})</div><div>🏅 ${m.winner ? `Winner: ${escapeHtml(m.winner)}` : "Match pending"}</div></div>`).join('') : "<div>No matches yet</div>";
+  }
 
-    // close drawer on Escape
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && sidebar.classList.contains('open')) closeDrawerAccessible();
-    });
-
-    // demoBtn: no animation per request — keep behavior but without animation
-    demoBtn && demoBtn.addEventListener('click', ()=> {
-      showToast('Opening demo…');
-      window.scrollTo({top:0,behavior:'smooth'});
-    });
-
-    function showToast(msg='Saved') {
-      const t = document.getElementById('toast');
-      t.textContent = msg;
-      t.classList.add('show');
-      t.style.display = 'block';
-      setTimeout(()=> t.classList.remove('show'), 2300);
+  async function renderOfficialsPage() {
+    const container = document.getElementById("rolesContainer");
+    const roles = await fetchRoles();
+    const roleKeys = [
+      { key: "chairman", label: "🏅 Chairman of Cup" },
+      { key: "secretary", label: "📜 Secretary of Cup" },
+      { key: "manager1", label: "🧢 Tournament Manager (Operations)" },
+      { key: "manager2", label: "📋 Event Coordinator" }
+    ];
+    container.innerHTML = "";
+    for (let r of roleKeys) {
+      const div = document.createElement("div");
+      div.className = "role-card";
+      div.innerHTML = `
+        <div style="font-weight:bold;">${r.label}</div>
+        <div class="role-editor">
+          <input type="text" id="role-${r.key}" value="${escapeHtml(roles[r.key] || '')}" placeholder="Name">
+          <button class="save-role-btn" data-key="${r.key}">💾 Save</button>
+        </div>
+      `;
+      container.appendChild(div);
     }
-
-    // small reveal triggers and highlight appearance on scroll
-    const io = new IntersectionObserver((entries)=> {
-      for (const e of entries) {
-        if (e.isIntersecting){
-          e.target.classList.add('show');
-          io.unobserve(e.target);
-        }
-      }
-    }, { threshold: 0.12 });
-
-    document.addEventListener('DOMContentLoaded', ()=> {
-      // reveal hero text and micro-animations
-      setTimeout(()=> { document.querySelectorAll('.reveal').forEach(el => el.classList.add('show')); }, 120);
-
-      // observe highlights and step-cards
-      document.querySelectorAll('.highlight, .step-card').forEach(h => io.observe(h));
-
-      // lively float-shape after island appears
-      setTimeout(()=> floatShape && floatShape.classList.add('lively'), 800);
-
-      // fetch admin meta
-      fetchMeta();
+    document.querySelectorAll(".save-role-btn").forEach(btn => {
+      btn.addEventListener("click", async (e) => {
+        const key = btn.getAttribute("data-key");
+        const input = document.getElementById(`role-${key}`);
+        const newVal = input.value.trim();
+        if (newVal) {
+          await updateRole(key, newVal);
+          alert(`${key} updated!`);
+        } else alert("Name cannot be empty");
+      });
     });
-  </script>
+  }
+
+  // reset handler
+  document.getElementById("resetAllDataBtn")?.addEventListener("click", async () => {
+    if (confirm("⚠️ WARNING: This will delete ALL teams, ALL matches, and all winners. Officials names will stay. Are you 100% sure?")) {
+      await resetAllTournamentData();
+      alert("✅ Tournament data completely reset (teams & matches cleared).");
+      // Refresh all active pages
+      const active = document.querySelector(".page.active-page")?.id;
+      if (active === "addTeams") await renderTeamsPage();
+      if (active === "addMatches") await renderAddMatchesPage();
+      if (active === "updateWinner") await renderUpdateWinnerPage();
+      if (active === "preview") await renderPreviewPage();
+      if (active === "scorecard") await renderScorecardPage();
+    }
+  });
+
+  // Event listeners
+  document.getElementById("addTeamBtn").addEventListener("click", async () => {
+    const name = document.getElementById("teamNameInput").value.trim();
+    const captain = document.getElementById("captainNameInput").value.trim();
+    if (!name || !captain) { alert("Both team name and captain required"); return; }
+    try {
+      await addTeam(name, captain);
+      document.getElementById("teamNameInput").value = "";
+      document.getElementById("captainNameInput").value = "";
+      await renderTeamsPage();
+      const active = document.querySelector(".page.active-page")?.id;
+      if (active === "addTeams") await renderTeamsPage();
+      if (active === "addMatches") await renderAddMatchesPage();
+      if (active === "preview") await renderPreviewPage();
+      if (active === "scorecard") await renderScorecardPage();
+      alert(`✅ Team "${name}" with captain ${captain} added!`);
+    } catch(e) { alert(e.message); }
+  });
+
+  document.getElementById("scheduleMatchBtn").addEventListener("click", async () => {
+    const teamA = document.getElementById("matchTeamA").value;
+    const teamB = document.getElementById("matchTeamB").value;
+    const date = document.getElementById("matchDate").value;
+    if (!teamA || !teamB || teamA === teamB) { alert("Select two different teams"); return; }
+    if (!date) { alert("Pick a date"); return; }
+    try {
+      await addMatch(teamA, teamB, date);
+      document.getElementById("matchDate").value = "";
+      await renderAddMatchesPage();
+      const active = document.querySelector(".page.active-page")?.id;
+      if (active === "addMatches") await renderAddMatchesPage();
+      if (active === "preview") await renderPreviewPage();
+      if (active === "scorecard") await renderScorecardPage();
+      if (active === "updateWinner") await renderUpdateWinnerPage();
+      alert("Match scheduled!");
+    } catch(e) { alert(e.message); }
+  });
+
+  document.getElementById("confirmWinnerBtn").addEventListener("click", async () => {
+    const matchSelect = document.getElementById("winnerMatchSelect");
+    const winnerSelect = document.getElementById("winnerTeamSelect");
+    const matchId = matchSelect.value;
+    if (!matchId || matchSelect.options[0]?.text.includes("No matches")) { alert("Select a match"); return; }
+    const winner = winnerSelect.value === "" ? null : winnerSelect.value;
+    try {
+      await updateMatchWinner(matchId, winner);
+      const msgDiv = document.getElementById("winnerMessage");
+      msgDiv.style.display = "block";
+      msgDiv.innerHTML = winner ? `🏆 Winner set: ${winner}` : "🔄 Winner reset (pending)";
+      setTimeout(() => msgDiv.style.display = "none", 2000);
+      await renderUpdateWinnerPage();
+      const active = document.querySelector(".page.active-page")?.id;
+      if (active === "preview") await renderPreviewPage();
+      if (active === "scorecard") await renderScorecardPage();
+    } catch(e) { alert("Permission error: " + e.message + " — Check Firestore rules (allow update winner only)."); }
+  });
+
+  // navigation & init
+  const pages = ["addTeams", "addMatches", "updateWinner", "preview", "scorecard", "officials"];
+  function showPage(pageId) {
+    pages.forEach(pid => {
+      document.getElementById(pid).classList.toggle("active-page", pid === pageId);
+    });
+    document.querySelectorAll(".nav-btn").forEach(btn => {
+      btn.classList.toggle("active", btn.getAttribute("data-page") === pageId);
+    });
+    if (pageId === "addTeams") renderTeamsPage();
+    if (pageId === "addMatches") renderAddMatchesPage();
+    if (pageId === "updateWinner") renderUpdateWinnerPage();
+    if (pageId === "preview") renderPreviewPage();
+    if (pageId === "scorecard") renderScorecardPage();
+    if (pageId === "officials") renderOfficialsPage();
+  }
+  document.querySelectorAll(".nav-btn").forEach(btn => {
+    btn.addEventListener("click", () => showPage(btn.getAttribute("data-page")));
+  });
+  await initRoles();
+  showPage("addTeams");
+
+  function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+</script>
 </body>
 </html>
