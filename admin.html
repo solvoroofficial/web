@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Vineet's Cup · Admin Panel</title>
+  <script type="importmap">
+    {
+      "imports": {
+        "firebase/app": "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js",
+        "firebase/firestore": "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js"
+      }
+    }
+  </script>
+  <style>
+    * { margin:0; padding:0; box-sizing: border-box; font-family: 'Segoe UI', system-ui; }
+    body { background: #eef2f0; padding: 1.5rem; }
+    .container { max-width: 1400px; margin: 0 auto; }
+    .header { background: #1e3c2c; color: white; padding: 1rem 2rem; border-radius: 2rem; margin-bottom: 2rem; display: flex; justify-content: space-between; flex-wrap: wrap; align-items: center; gap: 1rem; }
+    .nav-buttons { display: flex; gap: 0.8rem; flex-wrap: wrap; }
+    .nav-btn { background: #f39c12; border: none; padding: 0.5rem 1.2rem; border-radius: 40px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+    .nav-btn.active { background: #2c7a47; color: white; }
+    .page { display: none; animation: fade 0.2s; }
+    .page.active-page { display: block; }
+    @keyframes fade { from { opacity:0; } to { opacity:1; } }
+    .card { background: white; border-radius: 1.5rem; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 6px 14px rgba(0,0,0,0.05); }
+    .form-group { margin-bottom: 1rem; }
+    label { font-weight: 600; display: block; margin-bottom: 0.3rem; }
+    input, select, button { width: 100%; padding: 0.7rem; border-radius: 50px; border: 1px solid #ccc; font-size: 0.9rem; }
+    button { background: #2c7a47; color: white; font-weight: bold; cursor: pointer; border: none; }
+    button.danger { background: #c0392b; }
+    button.secondary { background: #f39c12; }
+    .data-list { max-height: 320px; overflow-y: auto; background: #fafcf8; border-radius: 1rem; padding: 0.6rem; margin-top: 1rem; }
+    .match-item, .team-item { background: white; border-left: 5px solid #f39c12; padding: 0.6rem 1rem; margin-bottom: 0.5rem; border-radius: 50px; display: flex; justify-content: space-between; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .small-text { font-size: 0.75rem; color: #666; }
+    .loading { text-align: center; padding: 1rem; color: #2c7a47; }
+    @media (max-width: 700px) { .grid-2 { grid-template-columns: 1fr; } body { padding: 1rem; } }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h2>🏏 Vineet's Cup · Admin Dashboard</h2>
+    <div class="nav-buttons">
+      <button class="nav-btn" data-page="teams">➕ Teams</button>
+      <button class="nav-btn" data-page="matches">📅 Matches</button>
+      <button class="nav-btn" data-page="winners">🏅 Winners</button>
+      <button class="nav-btn" data-page="playoffs">🏆 Playoffs</button>
+      <button class="nav-btn" data-page="officials">👔 Officials</button>
+      <button class="nav-btn" data-page="reset">⚠️ Reset</button>
+    </div>
+  </div>
+
+  <!-- Teams Page -->
+  <div id="teams" class="page">
+    <div class="card">
+      <h3>➕ Add New Team</h3>
+      <div class="form-group"><label>Team Name</label><input type="text" id="teamName" placeholder="e.g., Mumbai Indians"></div>
+      <div class="form-group"><label>Captain Name</label><input type="text" id="captainName" placeholder="e.g., Rohit Sharma"></div>
+      <button id="addTeamBtn">➕ Add Team</button>
+      <div class="data-list" id="teamsList"><div class="loading">Loading teams...</div></div>
+    </div>
+  </div>
+
+  <!-- League Matches Page -->
+  <div id="matches" class="page">
+    <div class="card">
+      <h3>📅 Schedule League Match</h3>
+      <div class="grid-2">
+        <select id="matchTeamA"></select>
+        <select id="matchTeamB"></select>
+      </div>
+      <div class="form-group"><label>Match Date</label><input type="date" id="matchDate"></div>
+      <button id="scheduleMatchBtn">📌 Schedule</button>
+      <div class="data-list" id="leagueMatchesList"><div class="loading">Loading matches...</div></div>
+    </div>
+  </div>
+
+  <!-- Update Winner + NRR -->
+  <div id="winners" class="page">
+    <div class="card">
+      <h3>🏆 Update League Match Winner & NRR</h3>
+      <div class="form-group"><label>Select Match</label><select id="winnerMatchSelect"></select></div>
+      <div class="form-group"><label>Winner Team</label><select id="winnerTeamSelect"><option value="">— Select Winner —</option></select></div>
+      <button id="confirmWinnerBtn">✅ Set Winner & Update NRR</button>
+      <div id="winnerMsg" class="small-text" style="margin-top:0.8rem; color:#2c7a47;"></div>
+    </div>
+  </div>
+
+  <!-- Playoffs Management -->
+  <div id="playoffs" class="page">
+    <div class="card">
+      <h3>🏆 Playoffs Bracket (4 Teams)</h3>
+      <button id="genPlayoffsBtn" class="secondary">🔄 Generate / Refresh Playoffs</button>
+      <div id="playoffStandingsPreview" class="small-text" style="margin:0.8rem 0;"></div>
+      <div id="playoffDatesPanel" style="margin-top:1rem;">
+        <h4>📅 Set Playoff Match Dates</h4>
+        <div id="playoffDatesContainer"></div>
+        <button id="updatePlayoffDatesBtn" style="margin-top:0.5rem;">💾 Save All Dates</button>
+      </div>
+      <div id="playoffWinnersPanel" style="margin-top:1rem;">
+        <h4>🏅 Set Playoff Winners (updates NRR)</h4>
+        <div id="playoffWinnersContainer"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Officials -->
+  <div id="officials" class="page">
+    <div class="card">
+      <h3>👔 Tournament Officials</h3>
+      <div id="rolesContainer"></div>
+    </div>
+  </div>
+
+  <!-- Reset with confirmation -->
+  <div id="reset" class="page">
+    <div class="card">
+      <h3>⚠️ Danger Zone – Reset Everything</h3>
+      <p>This will delete ALL teams, matches, winners, and playoff data. This action cannot be undone.</p>
+      <div class="form-group"><label>Type <strong>"RESET ALL"</strong> to confirm</label><input type="text" id="confirmResetInput" placeholder="RESET ALL"></div>
+      <button id="resetBtn" class="danger">🗑️ Permanently Reset Everything</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "firebase/app";
+  import { getFirestore, collection, doc, setDoc, getDocs, updateDoc, deleteDoc, writeBatch, query, orderBy, where } from "firebase/firestore";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBbWQgBjAIAn-OI3DzDAqx7lmLmbUCUAWU",
+    authDomain: "solvoro-c9155.firebaseapp.com",
+    projectId: "solvoro-c9155",
+    storageBucket: "solvoro-c9155.firebasestorage.app",
+    messagingSenderId: "536457030363",
+    appId: "1:536457030363:web:e3315527c15fc037ba3afe",
+    measurementId: "G-Z47VFQ3C7Q"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // ---------- Core Functions ----------
+  async function fetchTeams() {
+    const snap = await getDocs(collection(db, "teams"));
+    return snap.docs.map(doc => ({ id: doc.id, name: doc.id, captain: doc.data().captain, netRunRate: doc.data().netRunRate ?? 0 }));
+  }
+  async function fetchMatches(includeAll = true) {
+    const q = query(collection(db, "matches"), orderBy("date", "asc"));
+    const snap = await getDocs(q);
+    let matches = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    if (!includeAll) matches = matches.filter(m => m.matchType === "league" || !m.matchType);
+    return matches;
+  }
+  async function addTeam(name, captain) {
+    if (!name.trim() || !captain.trim()) throw new Error("Both fields required");
+    await setDoc(doc(db, "teams", name.trim()), { name: name.trim(), captain: captain.trim(), netRunRate: 0, createdAt: new Date() });
+  }
+  async function addMatch(teamA, teamB, date, matchType = "league") {
+    if (teamA === teamB) throw new Error("Cannot schedule match with same team");
+    await setDoc(doc(collection(db, "matches")), { teamA, teamB, date, winner: null, matchType, createdAt: new Date() });
+  }
+  async function updateMatchWinner(matchId, winner) {
+    await updateDoc(doc(db, "matches", matchId), { winner: winner || null });
+  }
+  async function updateNetRunRate(teamName, newRate) {
+    if (isNaN(newRate)) return;
+    await updateDoc(doc(db, "teams", teamName), { netRunRate: parseFloat(newRate) });
+  }
+  async function deletePlayoffMatches() {
+    const q = query(collection(db, "matches"), where("matchType", "in", ["qualifier1", "eliminator", "qualifier2", "final"]));
+    const snap = await getDocs(q);
+    const batch = writeBatch(db);
+    snap.docs.forEach(d => batch.delete(d.ref));
+    await batch.commit();
+  }
+  async function generatePlayoffs(teams, standings) {
+    if (teams.length !== 4) throw new Error("Need exactly 4 teams to generate playoffs");
+    await deletePlayoffMatches();
+    const [first, second, third, fourth] = standings.map(s => s.name);
+    await addMatch(first, second, "", "qualifier1");
+    await addMatch(third, fourth, "", "eliminator");
+    await addMatch("TBD", "TBD", "", "qualifier2");
+    await addMatch("TBD", "TBD", "", "final");
+  }
+  async function updatePlayoffMatchTie() {
+    const matches = await fetchMatches(true);
+    const qual1 = matches.find(m => m.matchType === "qualifier1");
+    const elim = matches.find(m => m.matchType === "eliminator");
+    const qual2 = matches.find(m => m.matchType === "qualifier2");
+    const finalMatch = matches.find(m => m.matchType === "final");
+    if (qual1?.winner && elim?.winner && qual2) {
+      const loserQual1 = qual1.winner === qual1.teamA ? qual1.teamB : qual1.teamA;
+      if (qual2.teamA !== loserQual1 || qual2.teamB !== elim.winner) {
+        await updateDoc(doc(db, "matches", qual2.id), { teamA: loserQual1, teamB: elim.winner, winner: null });
+      }
+    }
+    if (qual1?.winner && qual2?.winner && finalMatch) {
+      if (finalMatch.teamA !== qual1.winner || finalMatch.teamB !== qual2.winner) {
+        await updateDoc(doc(db, "matches", finalMatch.id), { teamA: qual1.winner, teamB: qual2.winner, winner: null });
+      }
+    }
+  }
+  async function resetAllData() {
+    const teamsSnap = await getDocs(collection(db, "teams"));
+    const matchesSnap = await getDocs(collection(db, "matches"));
+    const batch = writeBatch(db);
+    teamsSnap.docs.forEach(d => batch.delete(d.ref));
+    matchesSnap.docs.forEach(d => batch.delete(d.ref));
+    await batch.commit();
+  }
+
+  // Standings helper (for league matches only)
+  async function computeStandings() {
+    const teams = await fetchTeams();
+    const matches = await fetchMatches(false);
+    const stats = {};
+    teams.forEach(t => { stats[t.name] = { name: t.name, played: 0, wins: 0, points: 0, netRunRate: t.netRunRate }; });
+    matches.filter(m => m.winner).forEach(m => {
+      if (stats[m.teamA]) stats[m.teamA].played++;
+      if (stats[m.teamB]) stats[m.teamB].played++;
+      if (stats[m.winner]) { stats[m.winner].wins++; stats[m.winner].points += 2; }
+    });
+    return Object.values(stats).sort((a,b) => b.points - a.points || b.netRunRate - a.netRunRate);
+  }
+
+  // ---------- Render Functions ----------
+  async function renderTeams() {
+    const container = document.getElementById("teamsList");
+    try {
+      const teams = await fetchTeams();
+      if (!teams.length) { container.innerHTML = "<div class='small-text'>No teams yet. Add your first team above.</div>"; return; }
+      container.innerHTML = teams.map(t => `<div class="team-item">🏏 ${escapeHtml(t.name)} | Captain: ${escapeHtml(t.captain)} | NRR: ${t.netRunRate.toFixed(2)}</div>`).join('');
+      // update team dropdowns for match scheduling
+      const options = teams.map(t => `<option value="${escapeHtml(t.name)}">${escapeHtml(t.name)}</option>`).join('');
+      document.getElementById("matchTeamA").innerHTML = `<option value="">-- Select --</option>${options}`;
+      document.getElementById("matchTeamB").innerHTML = `<option value="">-- Select --</option>${options}`;
+    } catch(e) { container.innerHTML = `<div class="small-text">Error loading teams: ${e.message}</div>`; }
+  }
+
+  async function renderLeagueMatches() {
+    const container = document.getElementById("leagueMatchesList");
+    const winnerSelect = document.getElementById("winnerMatchSelect");
+    try {
+      const matches = await fetchMatches(false);
+      if (!matches.length) { container.innerHTML = "<div class='small-text'>No league matches scheduled yet.</div>"; winnerSelect.innerHTML = "<option>No matches</option>"; return; }
+      container.innerHTML = matches.map(m => `<div class="match-item"><div><strong>${escapeHtml(m.teamA)} vs ${escapeHtml(m.teamB)}</strong> (${m.date || 'Date TBD'})</div><div>${m.winner ? `🏆 ${escapeHtml(m.winner)}` : '⏳ Pending'}</div></div>`).join('');
+      winnerSelect.innerHTML = matches.map(m => `<option value="${m.id}">${escapeHtml(m.teamA)} vs ${escapeHtml(m.teamB)} (${m.date || 'No date'})</option>`).join('');
+      winnerSelect.onchange = async () => {
+        const matchId = winnerSelect.value;
+        const match = matches.find(m => m.id === matchId);
+        if (match) {
+          document.getElementById("winnerTeamSelect").innerHTML = `<option value="">— Reset winner —</option><option value="${escapeHtml(match.teamA)}">${escapeHtml(match.teamA)}</option><option value="${escapeHtml(match.teamB)}">${escapeHtml(match.teamB)}</option>`;
+        }
+      };
+      if (matches.length) winnerSelect.dispatchEvent(new Event("change"));
+    } catch(e) { container.innerHTML = `<div class="small-text">Error: ${e.message}</div>`; }
+  }
+
+  async function renderPlayoffs() {
+    const standingsPreview = document.getElementById("playoffStandingsPreview");
+    const datesContainer = document.getElementById("playoffDatesContainer");
+    const winnersContainer = document.getElementById("playoffWinnersContainer");
+    try {
+      const standings = await computeStandings();
+      standingsPreview.innerHTML = `<strong>Current League Standings (Top 4 qualify):</strong> ${standings.map((s,i) => `${i+1}. ${s.name} (${s.points} pts, NRR ${s.netRunRate.toFixed(2)})`).join(' | ')}`;
+      const matches = await fetchMatches(true);
+      const playoffMatches = matches.filter(m => ["qualifier1","eliminator","qualifier2","final"].includes(m.matchType));
+      if (playoffMatches.length === 0) {
+        datesContainer.innerHTML = "<div class='small-text'>No playoffs generated yet. Click 'Generate / Refresh Playoffs'.</div>";
+        winnersContainer.innerHTML = "";
+        return;
+      }
+      // Dates panel
+      datesContainer.innerHTML = playoffMatches.map(m => `<div class="match-item" style="justify-content:space-between;"><span><strong>${m.matchType.toUpperCase()}</strong> ${escapeHtml(m.teamA)} vs ${escapeHtml(m.teamB)}</span><input type="date" id="date-${m.id}" value="${m.date || ''}" style="width:auto;"></div>`).join('');
+      // Winners panel with NRR prompts
+      winnersContainer.innerHTML = playoffMatches.map(m => `<div class="match-item"><div><strong>${m.matchType.toUpperCase()}</strong> ${escapeHtml(m.teamA)} vs ${escapeHtml(m.teamB)}</div><div><select id="winner-${m.id}"><option value="">— Select Winner —</option><option value="${escapeHtml(m.teamA)}">${escapeHtml(m.teamA)}</option><option value="${escapeHtml(m.teamB)}">${escapeHtml(m.teamB)}</option></select><button class="setPlayoffWinnerBtn" data-id="${m.id}">Set Winner & Update NRR</button></div></div>`).join('');
+      // attach events
+      document.querySelectorAll(".setPlayoffWinnerBtn").forEach(btn => {
+        btn.removeEventListener("click", playoffWinnerHandler);
+        btn.addEventListener("click", playoffWinnerHandler);
+      });
+    } catch(e) { datesContainer.innerHTML = `<div class="small-text">Error: ${e.message}</div>`; }
+  }
+
+  async function playoffWinnerHandler(e) {
+    const matchId = e.currentTarget.getAttribute("data-id");
+    const winnerSelect = document.getElementById(`winner-${matchId}`);
+    const winner = winnerSelect.value;
+    if (!winner) { alert("Please select a winner team"); return; }
+    const matches = await fetchMatches(true);
+    const match = matches.find(m => m.id === matchId);
+    if (!match) return;
+    const teams = await fetchTeams();
+    const teamA = teams.find(t => t.name === match.teamA);
+    const teamB = teams.find(t => t.name === match.teamB);
+    const newNRR_A = prompt(`Enter NEW Net Run Rate for ${match.teamA}\nCurrent: ${teamA?.netRunRate?.toFixed(2) || 0}`, teamA?.netRunRate || 0);
+    const newNRR_B = prompt(`Enter NEW Net Run Rate for ${match.teamB}\nCurrent: ${teamB?.netRunRate?.toFixed(2) || 0}`, teamB?.netRunRate || 0);
+    if (newNRR_A !== null && !isNaN(parseFloat(newNRR_A))) await updateNetRunRate(match.teamA, parseFloat(newNRR_A));
+    if (newNRR_B !== null && !isNaN(parseFloat(newNRR_B))) await updateNetRunRate(match.teamB, parseFloat(newNRR_B));
+    await updateMatchWinner(matchId, winner);
+    await updatePlayoffMatchTie();
+    await renderPlayoffs();
+    alert(`✅ Winner set: ${winner} | NRR updated for both teams`);
+  }
+
+  async function renderOfficials() {
+    const configRef = doc(db, "config", "tournamentOfficials");
+    const snap = await getDocs(collection(db, "config"));
+    let roles = { chairman: "Mr. Vineet", secretary: "Ms. Anjali", manager1: "Coach Ravi", manager2: "Event Head" };
+    const found = snap.docs.find(d => d.id === "tournamentOfficials");
+    if (found) roles = found.data();
+    const container = document.getElementById("rolesContainer");
+    container.innerHTML = Object.entries(roles).map(([key, val]) => `<div class="match-item"><span><strong>${key.replace(/_/g,' ').toUpperCase()}</strong></span><input id="role-${key}" value="${escapeHtml(val)}" style="flex:1;"><button class="saveRole" data-key="${key}">Save</button></div>`).join('');
+    document.querySelectorAll(".saveRole").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const key = btn.getAttribute("data-key");
+        const newVal = document.getElementById(`role-${key}`).value.trim();
+        if (newVal) {
+          await setDoc(doc(db, "config", "tournamentOfficials"), { [key]: newVal }, { merge: true });
+          alert(`Updated ${key}`);
+        } else alert("Value cannot be empty");
+      });
+    });
+  }
+
+  // ---------- Event Listeners ----------
+  document.getElementById("addTeamBtn").onclick = async () => {
+    const name = document.getElementById("teamName").value.trim();
+    const captain = document.getElementById("captainName").value.trim();
+    if (!name || !captain) { alert("Both team name and captain are required"); return; }
+    try {
+      await addTeam(name, captain);
+      document.getElementById("teamName").value = "";
+      document.getElementById("captainName").value = "";
+      await renderTeams();
+      await renderLeagueMatches(); // update dropdowns
+      alert(`Team "${name}" added successfully`);
+    } catch(e) { alert(e.message); }
+  };
+  document.getElementById("scheduleMatchBtn").onclick = async () => {
+    const teamA = document.getElementById("matchTeamA").value;
+    const teamB = document.getElementById("matchTeamB").value;
+    const date = document.getElementById("matchDate").value;
+    if (!teamA || !teamB || teamA === teamB) { alert("Select two different teams"); return; }
+    if (!date) { alert("Select a match date"); return; }
+    try {
+      await addMatch(teamA, teamB, date);
+      document.getElementById("matchDate").value = "";
+      await renderLeagueMatches();
+      alert("League match scheduled");
+    } catch(e) { alert(e.message); }
+  };
+  document.getElementById("confirmWinnerBtn").onclick = async () => {
+    const matchId = document.getElementById("winnerMatchSelect").value;
+    const winner = document.getElementById("winnerTeamSelect").value;
+    if (!matchId) { alert("Select a match"); return; }
+    const matches = await fetchMatches(false);
+    const match = matches.find(m => m.id === matchId);
+    if (!match) return;
+    if (winner) {
+      const teams = await fetchTeams();
+      const teamA = teams.find(t => t.name === match.teamA);
+      const teamB = teams.find(t => t.name === match.teamB);
+      const newNRR_A = prompt(`Enter NEW Net Run Rate for ${match.teamA}\nCurrent: ${teamA?.netRunRate?.toFixed(2) || 0}`, teamA?.netRunRate || 0);
+      const newNRR_B = prompt(`Enter NEW Net Run Rate for ${match.teamB}\nCurrent: ${teamB?.netRunRate?.toFixed(2) || 0}`, teamB?.netRunRate || 0);
+      if (newNRR_A !== null && !isNaN(parseFloat(newNRR_A))) await updateNetRunRate(match.teamA, parseFloat(newNRR_A));
+      if (newNRR_B !== null && !isNaN(parseFloat(newNRR_B))) await updateNetRunRate(match.teamB, parseFloat(newNRR_B));
+    }
+    await updateMatchWinner(matchId, winner || null);
+    document.getElementById("winnerMsg").innerText = winner ? `Winner: ${winner} (NRR updated)` : "Winner reset";
+    setTimeout(() => document.getElementById("winnerMsg").innerText = "", 3000);
+    await renderLeagueMatches();
+    await renderPlayoffs(); // refresh standings preview
+  };
+  document.getElementById("genPlayoffsBtn").onclick = async () => {
+    try {
+      const teams = await fetchTeams();
+      if (teams.length !== 4) { alert("You need exactly 4 teams to generate playoffs"); return; }
+      const standings = await computeStandings();
+      await generatePlayoffs(teams, standings);
+      await renderPlayoffs();
+      alert("Playoffs bracket generated! You can now set dates and winners.");
+    } catch(e) { alert(e.message); }
+  };
+  document.getElementById("updatePlayoffDatesBtn").onclick = async () => {
+    const matches = await fetchMatches(true);
+    const playoffMatches = matches.filter(m => ["qualifier1","eliminator","qualifier2","final"].includes(m.matchType));
+    for (let m of playoffMatches) {
+      const dateInput = document.getElementById(`date-${m.id}`);
+      if (dateInput && dateInput.value !== m.date) {
+        await updateDoc(doc(db, "matches", m.id), { date: dateInput.value });
+      }
+    }
+    alert("All playoff dates saved!");
+    await renderPlayoffs();
+  };
+  document.getElementById("resetBtn").onclick = async () => {
+    const confirmText = document.getElementById("confirmResetInput").value;
+    if (confirmText !== "RESET ALL") { alert('Type exactly "RESET ALL" to confirm deletion'); return; }
+    if (confirm("⚠️ FINAL WARNING: This will delete ALL teams, matches, and playoff data. This cannot be undone. Click OK to proceed.")) {
+      await resetAllData();
+      alert("All tournament data has been wiped. The page will now reload.");
+      location.reload();
+    }
+  };
+
+  // Navigation
+  const pages = ["teams","matches","winners","playoffs","officials","reset"];
+  function showPage(pageId) {
+    pages.forEach(pid => document.getElementById(pid).classList.toggle("active-page", pid === pageId));
+    document.querySelectorAll(".nav-btn").forEach(btn => btn.classList.toggle("active", btn.getAttribute("data-page") === pageId));
+    if (pageId === "teams") renderTeams();
+    if (pageId === "matches") { renderTeams(); renderLeagueMatches(); }
+    if (pageId === "winners") renderLeagueMatches();
+    if (pageId === "playoffs") renderPlayoffs();
+    if (pageId === "officials") renderOfficials();
+  }
+  document.querySelectorAll(".nav-btn").forEach(btn => btn.addEventListener("click", () => showPage(btn.getAttribute("data-page"))));
+  showPage("teams");
+
+  function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, function(m){ if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+</script>
+</body>
+</html>
