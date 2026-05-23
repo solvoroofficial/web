@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-  <title>Vineet's Cup · Cricket Tournament Manager</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Vineet's Cup · Tournament Live</title>
   <script type="importmap">
     {
       "imports": {
@@ -17,383 +17,196 @@
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-      font-family: 'Segoe UI', 'Poppins', -apple-system, BlinkMacSystemFont, 'Roboto', sans-serif;
+      font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
     }
 
     body {
-      background: linear-gradient(145deg, #eef2f0 0%, #c8e0d4 100%);
+      background: linear-gradient(135deg, #f5f7fa 0%, #e9edf2 100%);
       min-height: 100vh;
-      padding: 1rem;
+      padding: 2rem 1.5rem;
     }
 
-    .app-container {
+    .container {
       max-width: 1400px;
       margin: 0 auto;
-      background: rgba(255, 255, 255, 0.9);
-      backdrop-filter: blur(2px);
-      border-radius: 2rem;
-      box-shadow: 0 20px 35px -10px rgba(0,0,0,0.2);
-      padding: 1.2rem;
     }
 
-    @media (min-width: 768px) {
-      .app-container {
-        padding: 1.8rem 2rem;
-      }
-      body {
-        padding: 2rem 1.5rem;
-      }
-    }
-
-    .tournament-header {
+    /* Header */
+    .hero {
       text-align: center;
-      margin-bottom: 1.5rem;
-      border-bottom: 3px dashed #f39c12;
-      padding-bottom: 0.75rem;
+      margin-bottom: 3rem;
     }
-
-    .tournament-header h1 {
-      font-size: 1.8rem;
-      background: linear-gradient(135deg, #1e3c2c, #2c7a47);
+    .hero h1 {
+      font-size: 3.2rem;
+      background: linear-gradient(120deg, #1a4d2a, #f39c12);
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
+      letter-spacing: -0.5px;
+    }
+    .hero p {
+      color: #4a6741;
+      font-size: 1.1rem;
+      margin-top: 0.5rem;
     }
 
-    @media (min-width: 550px) {
-      .tournament-header h1 {
-        font-size: 2.4rem;
-      }
+    /* Cards */
+    .card {
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(4px);
+      border-radius: 2rem;
+      padding: 1.8rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 20px 35px -12px rgba(0,0,0,0.1);
+      transition: transform 0.2s;
+    }
+    .card:hover {
+      transform: translateY(-3px);
+    }
+    .card h2 {
+      font-size: 1.8rem;
+      margin-bottom: 1.2rem;
+      color: #1e3c2c;
+      border-left: 6px solid #f39c12;
+      padding-left: 1rem;
+    }
+    .card h3 {
+      font-size: 1.3rem;
+      margin: 1rem 0 0.8rem;
+      color: #2c7a47;
     }
 
-    .nav-pages {
+    /* Table */
+    .table-wrapper {
+      overflow-x: auto;
+    }
+    .standings-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 1.2rem;
+      overflow: hidden;
+    }
+    .standings-table th, .standings-table td {
+      padding: 0.9rem 0.8rem;
+      text-align: left;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .standings-table th {
+      background: #2c7a47;
+      color: white;
+      font-weight: 600;
+    }
+    .standings-table tr:hover {
+      background: #f9fbf6;
+    }
+
+    /* Match cards */
+    .matches-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.2rem;
+      margin-top: 1rem;
+    }
+    .match-card {
+      background: white;
+      border-radius: 1.2rem;
+      padding: 1rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      border-left: 5px solid #f39c12;
+    }
+    .match-card.winner {
+      border-left-color: #2c7a47;
+      background: #f0f9f0;
+    }
+    .match-teams {
+      font-weight: bold;
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+    }
+    .match-date {
+      font-size: 0.8rem;
+      color: #666;
+      margin-bottom: 0.4rem;
+    }
+    .match-winner {
+      font-size: 0.9rem;
+      color: #2c7a47;
+      font-weight: 500;
+    }
+    .badge {
+      background: #f39c12;
+      color: white;
+      padding: 0.2rem 0.6rem;
+      border-radius: 30px;
+      font-size: 0.7rem;
+      display: inline-block;
+    }
+
+    /* Bracket */
+    .bracket {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 0.5rem;
-      margin-bottom: 1.5rem;
-      background: #ffffffcc;
-      padding: 0.7rem 0.8rem;
-      border-radius: 60px;
-    }
-
-    .nav-btn {
-      background: #eef2f7;
-      border: none;
-      padding: 0.5rem 0.9rem;
-      font-weight: 600;
-      font-size: 0.75rem;
-      border-radius: 40px;
-      cursor: pointer;
-      transition: 0.2s;
-      color: #1f3b2c;
-      white-space: nowrap;
-    }
-
-    @media (min-width: 550px) {
-      .nav-btn {
-        padding: 0.6rem 1.4rem;
-        font-size: 0.9rem;
-      }
-    }
-
-    .nav-btn.active {
-      background: #2c7a47;
-      color: white;
-      box-shadow: 0 4px 10px rgba(44,122,71,0.3);
-    }
-
-    .page {
-      display: none;
-      animation: fade 0.2s ease;
-    }
-
-    .page.active-page {
-      display: block;
-    }
-
-    @keyframes fade {
-      from { opacity: 0; transform: translateY(4px);}
-      to { opacity: 1; transform: translateY(0);}
-    }
-
-    .card-panel {
-      background: white;
-      border-radius: 1.5rem;
-      padding: 1.2rem;
-      margin-bottom: 1.5rem;
-      box-shadow: 0 6px 14px rgba(0,0,0,0.05);
-    }
-
-    @media (min-width: 768px) {
-      .card-panel {
-        padding: 1.5rem;
-      }
-    }
-
-    .form-group {
-      margin-bottom: 1rem;
-    }
-
-    label {
-      font-weight: 600;
-      display: block;
-      margin-bottom: 0.3rem;
-      font-size: 0.85rem;
-      color: #2c3e2f;
-    }
-
-    input, select, button {
-      width: 100%;
-      padding: 0.7rem 0.9rem;
-      border-radius: 50px;
-      border: 1px solid #cbdcd0;
-      font-size: 0.9rem;
-      background: white;
-    }
-
-    button {
-      background: #2c7a47;
-      color: white;
-      font-weight: bold;
-      border: none;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-
-    button.danger {
-      background: #c0392b;
-    }
-
-    .data-list {
+      gap: 2rem;
       margin-top: 1rem;
-      max-height: 350px;
-      overflow-y: auto;
-      background: #fafcf8;
-      border-radius: 1rem;
-      padding: 0.6rem;
     }
-
-    .team-badge, .match-item, .role-card {
+    .bracket-round {
+      background: #f4f7f2;
+      border-radius: 1.5rem;
+      padding: 1rem;
+      min-width: 240px;
+    }
+    .bracket-match {
       background: white;
-      border-radius: 50px;
-      padding: 0.5rem 0.8rem;
-      margin-bottom: 0.6rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-      border-left: 5px solid #f39c12;
-      font-size: 0.85rem;
-    }
-
-    .winner-highlight {
-      border-left-color: #2c7a47;
-      background: #e9f7ec;
-    }
-
-    .grid-2 {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 1rem;
-    }
-
-    @media (min-width: 550px) {
-      .grid-2 {
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-        gap: 1.2rem;
-      }
-    }
-
-    .score-table-wrapper {
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    .score-table {
-      width: 100%;
-      min-width: 280px;
-      border-collapse: collapse;
-      background: white;
+      margin-bottom: 1rem;
+      padding: 0.8rem;
       border-radius: 1rem;
-      font-size: 0.8rem;
-    }
-
-    .score-table th, .score-table td {
-      padding: 0.6rem 0.5rem;
-      text-align: left;
-      border-bottom: 1px solid #e0e8e0;
-    }
-
-    .score-table th {
-      background: #2c7a47;
-      color: white;
-      font-weight: 600;
-    }
-
-    .alert {
-      background: #fef1e0;
-      border-left: 6px solid #ff9800;
-      padding: 0.6rem;
-      border-radius: 1rem;
-      font-size: 0.85rem;
-    }
-
-    .role-editor {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-      width: 100%;
-    }
-
-    @media (min-width: 480px) {
-      .role-editor {
-        flex-direction: row;
-        align-items: center;
-      }
-      .role-editor input {
-        flex: 2;
-        margin: 0;
-      }
-      .role-editor button {
-        width: auto;
-        padding: 0.5rem 1rem;
-      }
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
     }
 
     footer {
       text-align: center;
-      margin-top: 1.5rem;
-      font-size: 0.7rem;
-      color: #4a6741;
+      margin-top: 3rem;
+      color: #6c7a6c;
+      font-size: 0.85rem;
     }
 
-    .small-text {
-      font-size: 0.75rem;
-      color: #5a6e5a;
-    }
-
-    .text-ellipsis {
-      word-break: break-word;
+    @media (max-width: 700px) {
+      body { padding: 1rem; }
+      .hero h1 { font-size: 2rem; }
+      .card { padding: 1.2rem; }
     }
   </style>
 </head>
 <body>
-<div class="app-container">
-  <div class="tournament-header">
-    <h1>🏏 VINEET'S CUP · CRICKET TOURNAMENT 🏆</h1>
-    <p class="small-text">public scoreboard · add teams & captains · schedule · winners</p>
+<div class="container">
+  <div class="hero">
+    <h1>🏏 VINEET'S CUP 🏆</h1>
+    <p>Live Cricket Tournament · Public Scoreboard</p>
   </div>
 
-  <div class="nav-pages">
-    <button class="nav-btn" data-page="addTeams">➕ TEAMS</button>
-    <button class="nav-btn" data-page="addMatches">📅 MATCHES</button>
-    <button class="nav-btn" data-page="updateWinner">🏅 WINNER</button>
-    <button class="nav-btn" data-page="preview">👀 PREVIEW</button>
-    <button class="nav-btn" data-page="scorecard">📊 SCORECARD</button>
-    <button class="nav-btn" data-page="officials">👑 OFFICIALS</button>
+  <div class="card">
+    <h2>📊 Points Table & NRR</h2>
+    <div class="table-wrapper" id="pointsTable"></div>
   </div>
 
-  <!-- PAGE 1: ADD TEAMS with CAPTAIN -->
-  <div id="addTeams" class="page">
-    <div class="card-panel">
-      <h3>🏏 Add New Cricket Team</h3>
-      <div class="form-group">
-        <label>Team Name</label>
-        <input type="text" id="teamNameInput" placeholder="e.g., Chennai Kings">
-      </div>
-      <div class="form-group">
-        <label>Captain Name</label>
-        <input type="text" id="captainNameInput" placeholder="e.g., M.S. Dhoni">
-      </div>
-      <button id="addTeamBtn">➕ Add Team + Captain</button>
-      <div class="data-list" id="teamsListContainer">
-        <div class="small-text">✨ Teams & captains will appear here</div>
-      </div>
-    </div>
+  <div class="card">
+    <h2>🏟️ League Matches</h2>
+    <div id="leagueMatches" class="matches-grid"></div>
   </div>
 
-  <!-- PAGE 2: ADD MATCH with DATE -->
-  <div id="addMatches" class="page">
-    <div class="card-panel">
-      <h3>⚡ Schedule a Cricket Match</h3>
-      <div class="grid-2">
-        <div class="form-group">
-          <label>Team A</label>
-          <select id="matchTeamA"></select>
-        </div>
-        <div class="form-group">
-          <label>Team B</label>
-          <select id="matchTeamB"></select>
-        </div>
-      </div>
-      <div class="form-group">
-        <label>Match Date</label>
-        <input type="date" id="matchDate">
-      </div>
-      <button id="scheduleMatchBtn">📌 Schedule Match</button>
-      <div class="data-list" id="upcomingMatchesList"></div>
-    </div>
+  <div class="card">
+    <h2>🏆 Playoffs Bracket</h2>
+    <div id="playoffBracket"></div>
   </div>
 
-  <!-- PAGE 3: UPDATE WINNER -->
-  <div id="updateWinner" class="page">
-    <div class="card-panel">
-      <h3>🏆 Update Match Winner</h3>
-      <div class="form-group">
-        <label>Select Match</label>
-        <select id="winnerMatchSelect"></select>
-      </div>
-      <div class="form-group">
-        <label>Winner Team</label>
-        <select id="winnerTeamSelect">
-          <option value="">— No winner / reset —</option>
-        </select>
-      </div>
-      <button id="confirmWinnerBtn">✅ Confirm Winner Update</button>
-      <div id="winnerMessage" class="alert" style="display:none;"></div>
-    </div>
-  </div>
-
-  <!-- PAGE 4: PREVIEW (fixed captain display) -->
-  <div id="preview" class="page">
-    <div class="card-panel">
-      <h3>📋 Full Tournament Preview</h3>
-      <h4>🏅 Teams & Captains</h4>
-      <div id="previewTeamsList" class="data-list"></div>
-      <h4 style="margin-top: 1rem;">🏟️ All Matches & Results</h4>
-      <div id="previewMatchesList" class="data-list"></div>
-    </div>
-  </div>
-
-  <!-- PAGE 5: SCORECARD & STANDINGS -->
-  <div id="scorecard" class="page">
-    <div class="card-panel">
-      <h3>📈 POINTS TABLE (2 pts per win)</h3>
-      <div class="score-table-wrapper" id="pointsTableContainer"></div>
-      <h3 style="margin-top: 1.5rem;">🏏 Match Scorecard</h3>
-      <div id="scorecardMatchesList" class="data-list"></div>
-    </div>
-  </div>
-
-  <!-- PAGE 6: OFFICIALS + RESET BUTTON -->
-  <div id="officials" class="page">
-    <div class="card-panel">
-      <h3>👔 Tournament Officials</h3>
-      <div id="rolesContainer"></div>
-      <hr style="margin: 1.2rem 0;">
-      <button id="resetAllDataBtn" class="danger" style="background:#c0392b;">⚠️ RESET EVERYTHING (teams & matches) ⚠️</button>
-      <p class="small-text" style="margin-top: 0.8rem;">⚠️ This deletes all teams, matches, winners. Officials remain.</p>
-    </div>
-  </div>
-  <footer>🏆 Vineet's Cup · Live Firestore · Cricket Edition</footer>
+  <footer>© Vineet's Cup · Real-time updates from Firestore</footer>
 </div>
 
 <script type="module">
   import { initializeApp } from "firebase/app";
-  import { getFirestore, collection, doc, setDoc, getDocs, updateDoc, deleteDoc, writeBatch, query, orderBy } from "firebase/firestore";
+  import { getFirestore, collection, getDocs, query, orderBy } from "firebase/firestore";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBbWQgBjAIAn-OI3DzDAqx7lmLmbUCUAWU",
@@ -408,281 +221,60 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  const teamsCol = collection(db, "teams");
-  const matchesCol = collection(db, "matches");
-  const configCol = collection(db, "config");
-  const rolesDoc = doc(db, "config", "tournamentOfficials");
-
-  const defaultRoles = {
-    chairman: "Mr. Vineet",
-    secretary: "Ms. Anjali",
-    manager1: "Coach Ravi",
-    manager2: "Event Head Priya"
-  };
-
-  async function initRoles() {
-    const snap = await getDocs(configCol);
-    const exists = snap.docs.some(d => d.id === "tournamentOfficials");
-    if (!exists) await setDoc(rolesDoc, defaultRoles);
-  }
-
-  async function fetchRoles() {
-    const snap = await getDocs(configCol);
-    const roleDoc = snap.docs.find(d => d.id === "tournamentOfficials");
-    return roleDoc ? roleDoc.data() : defaultRoles;
-  }
-
-  async function updateRole(roleKey, value) {
-    await setDoc(rolesDoc, { [roleKey]: value }, { merge: true });
-  }
-
   async function fetchTeams() {
-    const snapshot = await getDocs(teamsCol);
-    return snapshot.docs.map(doc => ({ id: doc.id, name: doc.id, captain: doc.data().captain || "—" }));
+    const snap = await getDocs(collection(db, "teams"));
+    return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   }
 
   async function fetchMatches() {
-    const q = query(matchesCol, orderBy("date", "asc"));
+    const q = query(collection(db, "matches"), orderBy("date", "asc"));
     const snap = await getDocs(q);
     return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   }
 
-  async function addTeam(teamName, captain) {
-    if (!teamName.trim()) throw new Error("Team name required");
-    if (!captain.trim()) throw new Error("Captain name required");
-    const teamRef = doc(db, "teams", teamName.trim());
-    await setDoc(teamRef, { name: teamName.trim(), captain: captain.trim(), createdAt: new Date() });
-  }
-
-  async function addMatch(teamA, teamB, date) {
-    if (teamA === teamB) throw new Error("Same team not allowed");
-    if (!teamA || !teamB) throw new Error("Select both teams");
-    if (!date) throw new Error("Pick a date");
-    await setDoc(doc(matchesCol), { teamA, teamB, date, winner: null, createdAt: new Date() });
-  }
-
-  async function updateMatchWinner(matchId, winner) {
-    const matchRef = doc(db, "matches", matchId);
-    await updateDoc(matchRef, { winner: winner || null });
-  }
-
-  async function resetAllTournamentData() {
-    const teamsSnapshot = await getDocs(teamsCol);
-    const matchesSnapshot = await getDocs(matchesCol);
-    const batch = writeBatch(db);
-    teamsSnapshot.docs.forEach(doc => batch.delete(doc.ref));
-    matchesSnapshot.docs.forEach(doc => batch.delete(doc.ref));
-    await batch.commit();
-  }
-
-  // ---------- RENDER FUNCTIONS ----------
-  async function renderTeamsPage() {
-    const container = document.getElementById("teamsListContainer");
-    try {
-      const teams = await fetchTeams();
-      if (!teams.length) { container.innerHTML = `<div class="small-text">🏏 No teams yet. Add team + captain!</div>`; return; }
-      container.innerHTML = teams.map(t => `<div class="team-badge">🏏 ${escapeHtml(t.name)}  |  👑 Captain: ${escapeHtml(t.captain)}</div>`).join('');
-    } catch(e) { container.innerHTML = `<div class="alert">Error loading teams</div>`; }
-  }
-
-  async function renderAddMatchesPage() {
-    const teamASelect = document.getElementById("matchTeamA");
-    const teamBSelect = document.getElementById("matchTeamB");
-    const matchesContainer = document.getElementById("upcomingMatchesList");
-    try {
-      const teams = await fetchTeams();
-      const options = teams.map(t => `<option value="${escapeHtml(t.name)}">${escapeHtml(t.name)} (C: ${escapeHtml(t.captain)})</option>`).join('');
-      teamASelect.innerHTML = `<option value="">-- select team --</option>${options}`;
-      teamBSelect.innerHTML = `<option value="">-- select team --</option>${options}`;
-      const matches = await fetchMatches();
-      if (!matches.length) matchesContainer.innerHTML = `<div class="small-text">📭 No matches scheduled.</div>`;
-      else matchesContainer.innerHTML = matches.map(m => `<div class="match-item ${m.winner ? 'winner-highlight' : ''}"><span><strong>${escapeHtml(m.teamA)}</strong> 🆚 <strong>${escapeHtml(m.teamB)}</strong> 📅 ${escapeHtml(m.date)}</span><span>${m.winner ? `🏆 Winner: ${escapeHtml(m.winner)}` : '⏳ Pending'}</span></div>`).join('');
-    } catch(e) { matchesContainer.innerHTML = "error"; }
-  }
-
-  async function renderUpdateWinnerPage() {
-    const matchSelect = document.getElementById("winnerMatchSelect");
-    const winnerSelect = document.getElementById("winnerTeamSelect");
-    try {
-      const matches = await fetchMatches();
-      if (!matches.length) { matchSelect.innerHTML = `<option>No matches yet</option>`; return; }
-      matchSelect.innerHTML = matches.map(m => `<option value="${m.id}">${escapeHtml(m.teamA)} vs ${escapeHtml(m.teamB)} (${m.date}) ${m.winner ? '✓ Winner: '+m.winner : '⌛'}</option>`).join('');
-      const updateWinnerOptions = () => {
-        const selectedId = matchSelect.value;
-        const match = matches.find(m => m.id === selectedId);
-        if (match) {
-          winnerSelect.innerHTML = `<option value="">— No winner / reset —</option><option value="${escapeHtml(match.teamA)}">🏆 ${escapeHtml(match.teamA)}</option><option value="${escapeHtml(match.teamB)}">🏆 ${escapeHtml(match.teamB)}</option>`;
-          if (match.winner) winnerSelect.value = match.winner;
-          else winnerSelect.value = "";
-        }
-      };
-      matchSelect.onchange = updateWinnerOptions;
-      if (matches.length) updateWinnerOptions();
-    } catch(e) { console.error(e); }
-  }
-
-  // FIXED: captain name now displays correctly (was "captant")
-  async function renderPreviewPage() {
-    const teamsDiv = document.getElementById("previewTeamsList");
-    const matchesDiv = document.getElementById("previewMatchesList");
-    const teams = await fetchTeams();
-    teamsDiv.innerHTML = teams.length ? teams.map(t => `<div class="team-badge">🏏 ${escapeHtml(t.name)}  (Captain: ${escapeHtml(t.captain)})</div>`).join('') : "<div class='small-text'>No teams yet</div>";
-    const matches = await fetchMatches();
-    if (!matches.length) matchesDiv.innerHTML = "<div class='small-text'>No matches scheduled</div>";
-    else matchesDiv.innerHTML = matches.map(m => `<div class="match-item ${m.winner ? 'winner-highlight' : ''}"><div><strong>${escapeHtml(m.teamA)}</strong> vs <strong>${escapeHtml(m.teamB)}</strong> 📅 ${escapeHtml(m.date)}</div><div>${m.winner ? `🏆 WINNER: ${escapeHtml(m.winner)}` : '⏳ Result pending'}</div></div>`).join('');
-  }
-
-  async function renderScorecardPage() {
-    const pointsContainer = document.getElementById("pointsTableContainer");
-    const scoreMatchesDiv = document.getElementById("scorecardMatchesList");
+  async function render() {
     const teams = await fetchTeams();
     const matches = await fetchMatches();
+    const leagueMatches = matches.filter(m => m.matchType === "league" || !m.matchType);
+    const playoffMatches = matches.filter(m => m.matchType && m.matchType !== "league");
+
+    // Standings
     const stats = {};
-    teams.forEach(t => { stats[t.name] = { played: 0, wins: 0, points: 0, name: t.name }; });
-    matches.filter(m => m.winner && m.winner !== "").forEach(m => {
+    teams.forEach(t => { stats[t.name] = { name: t.name, played: 0, wins: 0, points: 0, nrr: t.netRunRate || 0 }; });
+    leagueMatches.filter(m => m.winner).forEach(m => {
       if (stats[m.teamA]) stats[m.teamA].played++;
       if (stats[m.teamB]) stats[m.teamB].played++;
       if (stats[m.winner]) { stats[m.winner].wins++; stats[m.winner].points += 2; }
     });
-    const standings = Object.values(stats).sort((a,b) => b.points - a.points);
-    pointsContainer.innerHTML = standings.length ? `<div class="score-table-wrapper"><table class="score-table"><thead><tr><th>Team</th><th>P</th><th>W</th><th>Pts</th></tr></thead><tbody>${standings.map(s => `<tr><td>${escapeHtml(s.name)}</td><td>${s.played}</td><td>${s.wins}</td><td>${s.points}</td></tr>`).join('')}</tbody></table></div>` : "<div class='small-text'>Add teams to see points table</div>";
-    scoreMatchesDiv.innerHTML = matches.length ? matches.map(m => `<div class="match-item ${m.winner ? 'winner-highlight' : ''}"><div><strong>${escapeHtml(m.teamA)} 🆚 ${escapeHtml(m.teamB)}</strong> (${escapeHtml(m.date)})</div><div>🏅 ${m.winner ? `Winner: ${escapeHtml(m.winner)}` : "Match pending"}</div></div>`).join('') : "<div class='small-text'>No matches yet</div>";
+    const standings = Object.values(stats).sort((a,b) => b.points - a.points || b.nrr - a.nrr);
+    const pointsTableHtml = `<table class="standings-table"><thead><tr><th>Team</th><th>P</th><th>W</th><th>Pts</th><th>NRR</th></tr></thead><tbody>${standings.map(s => `<tr><td><strong>${escapeHtml(s.name)}</strong></td><td>${s.played}</td><td>${s.wins}</td><td>${s.points}</td><td>${s.nrr.toFixed(2)}</td></tr>`).join('')}</tbody></table>`;
+    document.getElementById("pointsTable").innerHTML = pointsTableHtml;
+
+    // League matches
+    const leagueHtml = leagueMatches.map(m => `<div class="match-card ${m.winner ? 'winner' : ''}"><div class="match-teams">${escapeHtml(m.teamA)} 🆚 ${escapeHtml(m.teamB)}</div><div class="match-date">📅 ${m.date || 'Date TBD'}</div>${m.winner ? `<div class="match-winner">🏆 Winner: ${escapeHtml(m.winner)}</div>` : '<div class="match-winner">⏳ Result pending</div>'}</div>`).join('');
+    document.getElementById("leagueMatches").innerHTML = leagueHtml || "<p>No league matches scheduled yet.</p>";
+
+    // Playoff Bracket
+    const qual1 = playoffMatches.find(m => m.matchType === "qualifier1");
+    const elim = playoffMatches.find(m => m.matchType === "eliminator");
+    const qual2 = playoffMatches.find(m => m.matchType === "qualifier2");
+    const finalMatch = playoffMatches.find(m => m.matchType === "final");
+    const bracketHtml = `
+      <div class="bracket">
+        <div class="bracket-round"><h3>Qualifier 1</h3><div class="bracket-match"><div>${qual1 ? `${escapeHtml(qual1.teamA)} vs ${escapeHtml(qual1.teamB)}` : '—'}</div><div class="match-date">${qual1?.date || 'Date TBD'}</div><div class="match-winner">${qual1?.winner ? `🏆 ${escapeHtml(qual1.winner)}` : 'Pending'}</div></div></div>
+        <div class="bracket-round"><h3>Eliminator</h3><div class="bracket-match"><div>${elim ? `${escapeHtml(elim.teamA)} vs ${escapeHtml(elim.teamB)}` : '—'}</div><div class="match-date">${elim?.date || 'Date TBD'}</div><div class="match-winner">${elim?.winner ? `🏆 ${escapeHtml(elim.winner)}` : 'Pending'}</div></div></div>
+        <div class="bracket-round"><h3>Qualifier 2</h3><div class="bracket-match"><div>${qual2 ? `${escapeHtml(qual2.teamA)} vs ${escapeHtml(qual2.teamB)}` : 'TBD'}</div><div class="match-date">${qual2?.date || 'Date TBD'}</div><div class="match-winner">${qual2?.winner ? `🏆 ${escapeHtml(qual2.winner)}` : 'Pending'}</div></div></div>
+        <div class="bracket-round"><h3>🏆 FINAL</h3><div class="bracket-match"><div>${finalMatch ? `${escapeHtml(finalMatch.teamA)} vs ${escapeHtml(finalMatch.teamB)}` : 'TBD'}</div><div class="match-date">${finalMatch?.date || 'Date TBD'}</div><div class="match-winner">${finalMatch?.winner ? `🏆 CHAMPION: ${escapeHtml(finalMatch.winner)}` : 'Pending'}</div></div></div>
+      </div>
+    `;
+    document.getElementById("playoffBracket").innerHTML = bracketHtml;
   }
-
-  async function renderOfficialsPage() {
-    const container = document.getElementById("rolesContainer");
-    const roles = await fetchRoles();
-    const roleKeys = [
-      { key: "chairman", label: "🏅 Chairman of Cup" },
-      { key: "secretary", label: "📜 Secretary of Cup" },
-      { key: "manager1", label: "🧢 Tournament Manager (Ops)" },
-      { key: "manager2", label: "📋 Event Coordinator" }
-    ];
-    container.innerHTML = "";
-    for (let r of roleKeys) {
-      const div = document.createElement("div");
-      div.className = "role-card";
-      div.innerHTML = `
-        <div style="font-weight:bold; min-width:130px;">${r.label}</div>
-        <div class="role-editor">
-          <input type="text" id="role-${r.key}" value="${escapeHtml(roles[r.key] || '')}" placeholder="Full name">
-          <button class="save-role-btn" data-key="${r.key}">💾 Save</button>
-        </div>
-      `;
-      container.appendChild(div);
-    }
-    document.querySelectorAll(".save-role-btn").forEach(btn => {
-      btn.addEventListener("click", async (e) => {
-        const key = btn.getAttribute("data-key");
-        const input = document.getElementById(`role-${key}`);
-        const newVal = input.value.trim();
-        if (newVal) {
-          await updateRole(key, newVal);
-          alert(`${key} updated!`);
-        } else alert("Name cannot be empty");
-      });
-    });
-  }
-
-  // reset handler
-  document.getElementById("resetAllDataBtn")?.addEventListener("click", async () => {
-    if (confirm("⚠️ WARNING: This will delete ALL teams, ALL matches, and all winners. Officials names will stay. Are you 100% sure?")) {
-      try {
-        await resetAllTournamentData();
-        alert("✅ Tournament data completely reset (teams & matches cleared).");
-        const active = document.querySelector(".page.active-page")?.id;
-        if (active === "addTeams") await renderTeamsPage();
-        if (active === "addMatches") await renderAddMatchesPage();
-        if (active === "updateWinner") await renderUpdateWinnerPage();
-        if (active === "preview") await renderPreviewPage();
-        if (active === "scorecard") await renderScorecardPage();
-      } catch(e) {
-        alert("Reset failed. Check Firestore rules: allow delete; must be true for teams & matches.");
-        console.error(e);
-      }
-    }
-  });
-
-  // Event listeners
-  document.getElementById("addTeamBtn").addEventListener("click", async () => {
-    const name = document.getElementById("teamNameInput").value.trim();
-    const captain = document.getElementById("captainNameInput").value.trim();
-    if (!name || !captain) { alert("Both team name and captain required"); return; }
-    try {
-      await addTeam(name, captain);
-      document.getElementById("teamNameInput").value = "";
-      document.getElementById("captainNameInput").value = "";
-      await renderTeamsPage();
-      const active = document.querySelector(".page.active-page")?.id;
-      if (active === "addTeams") await renderTeamsPage();
-      if (active === "addMatches") await renderAddMatchesPage();
-      if (active === "preview") await renderPreviewPage();
-      if (active === "scorecard") await renderScorecardPage();
-      alert(`✅ Team "${name}" with captain ${captain} added!`);
-    } catch(e) { alert(e.message); }
-  });
-
-  document.getElementById("scheduleMatchBtn").addEventListener("click", async () => {
-    const teamA = document.getElementById("matchTeamA").value;
-    const teamB = document.getElementById("matchTeamB").value;
-    const date = document.getElementById("matchDate").value;
-    if (!teamA || !teamB || teamA === teamB) { alert("Select two different teams"); return; }
-    if (!date) { alert("Pick a date"); return; }
-    try {
-      await addMatch(teamA, teamB, date);
-      document.getElementById("matchDate").value = "";
-      await renderAddMatchesPage();
-      const active = document.querySelector(".page.active-page")?.id;
-      if (active === "addMatches") await renderAddMatchesPage();
-      if (active === "preview") await renderPreviewPage();
-      if (active === "scorecard") await renderScorecardPage();
-      if (active === "updateWinner") await renderUpdateWinnerPage();
-      alert("Match scheduled!");
-    } catch(e) { alert(e.message); }
-  });
-
-  document.getElementById("confirmWinnerBtn").addEventListener("click", async () => {
-    const matchSelect = document.getElementById("winnerMatchSelect");
-    const winnerSelect = document.getElementById("winnerTeamSelect");
-    const matchId = matchSelect.value;
-    if (!matchId || matchSelect.options[0]?.text.includes("No matches")) { alert("Select a match"); return; }
-    const winner = winnerSelect.value === "" ? null : winnerSelect.value;
-    try {
-      await updateMatchWinner(matchId, winner);
-      const msgDiv = document.getElementById("winnerMessage");
-      msgDiv.style.display = "block";
-      msgDiv.innerHTML = winner ? `🏆 Winner set: ${winner}` : "🔄 Winner reset (pending)";
-      setTimeout(() => msgDiv.style.display = "none", 2000);
-      await renderUpdateWinnerPage();
-      const active = document.querySelector(".page.active-page")?.id;
-      if (active === "preview") await renderPreviewPage();
-      if (active === "scorecard") await renderScorecardPage();
-    } catch(e) { alert("Permission error: " + e.message + " — Check Firestore rules (allow update winner only)."); }
-  });
-
-  // navigation
-  const pages = ["addTeams", "addMatches", "updateWinner", "preview", "scorecard", "officials"];
-  function showPage(pageId) {
-    pages.forEach(pid => {
-      document.getElementById(pid).classList.toggle("active-page", pid === pageId);
-    });
-    document.querySelectorAll(".nav-btn").forEach(btn => {
-      btn.classList.toggle("active", btn.getAttribute("data-page") === pageId);
-    });
-    if (pageId === "addTeams") renderTeamsPage();
-    if (pageId === "addMatches") renderAddMatchesPage();
-    if (pageId === "updateWinner") renderUpdateWinnerPage();
-    if (pageId === "preview") renderPreviewPage();
-    if (pageId === "scorecard") renderScorecardPage();
-    if (pageId === "officials") renderOfficialsPage();
-  }
-  document.querySelectorAll(".nav-btn").forEach(btn => {
-    btn.addEventListener("click", () => showPage(btn.getAttribute("data-page")));
-  });
-  await initRoles();
-  showPage("addTeams");
 
   function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+
+  render();
+  // Auto-refresh every 10 seconds
+  setInterval(render, 10000);
 </script>
 </body>
 </html>
